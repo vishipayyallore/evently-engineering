@@ -248,7 +248,7 @@ Test method naming: `Should_<Outcome>_When<Condition>` (unit + integration); AAA
 
 ## 11. Build, style & tooling constraints
 
-- SDK installed: **10.0.303**. `Directory.Build.props` pins **`net8.0`** for every project (⚠️ AGENTS.md says ".NET 10" — the code currently disagrees; confirm intent before touching `TargetFramework`).
+- The **reference repo** pins **`net8.0`** in `Directory.Build.props`. **Our build targets `net10.0`** — a deliberate, logged deviation (`docs/deviations-from-author.md`); the architecture is framework-agnostic, so everything else in this section carries over.
 - `Nullable` enabled, `ImplicitUsings` enabled.
 - **`TreatWarningsAsErrors` + `CodeAnalysisTreatWarningsAsErrors` + `EnforceCodeStyleInBuild` + `AnalysisMode=All` + `SonarAnalyzer.CSharp`** — a warning fails the build.
 - `.editorconfig` (severity `error` on most): file-scoped namespaces; `using` outside namespace; System usings first; braces always; language keywords over BCL types; expression-bodied properties/accessors/operators/lambdas; `readonly` fields; no `this.`; no unused parameters; collection expressions (`[]`); `CA1515` (make public internal) disabled — public API surface is deliberately minimal, most types are `internal`.

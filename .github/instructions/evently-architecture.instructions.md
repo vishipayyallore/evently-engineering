@@ -75,6 +75,7 @@ params; nullable on. A warning is a build error.
 ## R10 — Change discipline
 Match the nearest existing slice. Validate smallest-first, then `dotnet build Evently.sln`,
 then the module's tests, then `dotnet test Evently.sln`. Entity-config/`DbSet` change → add an
-EF migration. Never hand-edit `bin/`, `obj/`, `*Designer.cs`, `*ModelSnapshot.cs`. Do not
-change `TargetFramework` (currently `net8.0` in `Directory.Build.props`) without an explicit
-decision.
+EF migration. Never hand-edit `bin/`, `obj/`, `*Designer.cs`, `*ModelSnapshot.cs`. We target
+`net10.0` (the author's repo is `net8.0` — a logged deviation); use the .NET 10 equivalent
+when a course step relies on an .NET 8-specific API and note it in
+`docs/deviations-from-author.md`.

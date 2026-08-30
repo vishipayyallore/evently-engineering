@@ -48,5 +48,6 @@ not the active system of record for our work. Ground yourself in
 ## Escalate to the user
 
 New external dependency, a real message transport instead of in-memory, splitting the
-deployable, `TargetFramework`/SDK direction (net8 in props vs SDK 10 vs AGENTS.md "net10"),
-or anything that breaks an existing integration-event contract.
+deployable, a still-open `AGENTS.md` decision (project layout, `Evently` naming, a library
+swap like replacing MediatR), a course step needing a departure beyond the .NET 8→10
+difference, or anything that breaks an existing integration-event contract.

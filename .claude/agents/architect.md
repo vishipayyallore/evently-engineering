@@ -62,5 +62,7 @@ not the active system of record for our work. Ground yourself first in:
 
 - the change needs a decision that isn't derivable from the codebase (new external
   dependency, a real messaging transport instead of in-memory, splitting the deployable),
-- `TargetFramework` / SDK direction (net8 in props vs SDK 10 vs AGENTS.md "net10"),
+- a still-open decision from `AGENTS.md` applies (project layout, `Evently` naming, a
+  library swap such as replacing MediatR), or a course step needs a departure from the
+  author's approach beyond the framework difference,
 - anything that breaks an existing integration-event contract.

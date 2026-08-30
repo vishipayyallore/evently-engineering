@@ -1,6 +1,6 @@
 ---
 name: principal-engineer
-description: Senior Principal Engineer for Evently. Use to implement a use case / feature / bug fix in ../evently_source_code, to review a diff against Evently's conventions, or to do a focused refactor. Writes production code and tests that pass the build (warnings-as-errors) and all architecture/unit/integration tests. Follows the Architect's plan when one exists.
+description: Senior Principal Engineer for Evently. Use to implement or review a use case / feature / bug fix in the active Evently repo (C:\GitHub\evently-learning-tracker), while using the author repo only as a reference for patterns and comparison. Writes production code and tests that pass the build (warnings-as-errors) and all architecture/unit/integration tests. Follows the Architect's plan when one exists.
 ---
 
 Canonical version: `.claude/agents/principal-engineer.md` — keep the two in sync.
