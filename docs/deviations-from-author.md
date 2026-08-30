@@ -1,14 +1,14 @@
-# Deviations from the author's implementation
+# Deviations from the course
 
-Running log of where our Evently build (this repo, .NET 10) differs from the *Modular
-Monolith Architecture* course / `C:\GitHub\evently_source_code` (the author's repo, .NET 8).
+Running log of where our Evently build (.NET 10) deliberately differs from the *Modular
+Monolith Architecture* course material.
 
 Add a row whenever we make a deliberate, non-trivial choice that departs from the course.
-Keep it short: what changed, why, author's approach vs ours, where it lives.
+Keep it short: what changed, the course's approach vs ours, and why.
 
-| Date | Area | Author's approach | Our approach | Why |
+| Date | Area | Course approach | Our approach | Why |
 |---|---|---|---|---|
-| 2026-08-30 | Target framework | `net8.0` pinned in `Directory.Build.props` | `net10.0` | We're learning on the current .NET; the architecture is framework-agnostic. |
+| 2026-08-30 | Target framework | .NET 8 | .NET 10 | We build on the current .NET; the architecture is framework-agnostic. |
 
 ## Notes / candidates to revisit
 

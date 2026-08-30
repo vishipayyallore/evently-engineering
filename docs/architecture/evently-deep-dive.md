@@ -1,30 +1,29 @@
-# Evently — Architecture Deep Dive
+# Evently — Architecture Reference
 
-> Analysis of `C:\GitHub\evently_source_code` — the **author's reference implementation**
-> (.NET 8) from Milan Jovanović's *Modular Monolith Architecture* course.
+> The design we are building toward, and the patterns to follow when implementing a slice.
+> Based on the *Modular Monolith Architecture* course, adapted to **.NET 10**.
 >
-> **We build our version in this repo on .NET 10.** This document describes the target
-> design and the patterns to follow; adapt framework-version details and log deliberate
-> departures in [`../deviations-from-author.md`](../deviations-from-author.md). The
-> architecture itself (layering, module isolation, CQRS, outbox/inbox, Result pattern) is
-> framework-agnostic and carries over unchanged.
+> The architecture — layering, module isolation, CQRS, outbox/inbox, the Result pattern — is
+> framework-agnostic and applies as written. Where our build deliberately departs from the
+> course, it is recorded in [`../deviations-from-author.md`](../deviations-from-author.md).
 >
-> Written 2026-08-30. Verify specifics against the reference source before relying on them.
+> First drafted 2026-08-30. Update it as our implementation takes shape and as decisions land.
 
----
+## What this covers
 
-## How this analysis was done (ReAct trace)
-
-| Step | Thought | Action | Observation |
-|---|---|---|---|
-| 1 | Need the shape before the detail | Listed all 660 source files | 4 modules (Users, Events, Ticketing, Attendance), each with 6+ projects; a `Common` set; one `API` host; module + solution-level test projects |
-| 2 | The building blocks define everything downstream | Read `Common.Domain` (`Entity`, `Result`, `Error`, `DomainEvent`) | Result pattern, not exceptions; entities own domain events; errors are typed values |
-| 3 | How is a request handled end to end? | Read `Common.Application` (messaging interfaces, 3 pipeline behaviors, `ApplicationConfiguration`) | MediatR CQRS; every handler returns `Result`; behaviors = Exception → Logging → Validation |
-| 4 | What are the hard rules? | Read every `*.ArchitectureTests` project + top-level `Evently.ArchitectureTests` | Layering, module isolation, naming, sealing, visibility, ctor rules — all executable tests |
-| 5 | Trace one vertical slice | Read Events `CreateEvent` (command/handler/validator/endpoint) + `Event` aggregate + `GetEvent` (Dapper) | Write path = EF + repo + UoW; read path = raw SQL via `IDbConnectionFactory`; endpoint = minimal API + `Result.Match` |
-| 6 | How do modules talk? | Read outbox interceptor + `ProcessOutboxJob` + `IdempotentDomainEventHandler` + `EventBus` + inbox consumer/job + an integration-event handler + `CancelEventSaga` | Outbox → domain event handler → `IEventBus` (MassTransit in-memory) → inbox → integration-event handler → command. Idempotency via consumer tables. Saga orchestrates multi-module workflows. |
-| 7 | Infra wiring & ops | Read `InfrastructureConfiguration`, `EventsModule`, `Program.cs`, `docker-compose.yml`, `modules.*.json` | Postgres (schema per module), Redis, Keycloak, Quartz, Serilog/Seq, OpenTelemetry/Jaeger; per-module `AddXModule` + `ConfigureConsumers` |
-| 8 | Confirm conventions | Read `.editorconfig`, `Directory.Build.props`, sample `.csproj`, unit + integration test bases | Warnings-as-errors, Sonar, file-scoped namespaces, expression-bodied, sealed-by-default; Testcontainers-backed integration tests |
+1. System shape — modules, project layout per module
+2. The enforced rules (layering, module isolation, naming, sealing, ctor rules)
+3. The CQRS request pipeline (MediatR, `Result<T>`, the three behaviors)
+4. Domain modeling conventions
+5. Persistence (schema per module, write path vs read path)
+6. Cross-module communication — domain events, outbox, integration events, inbox, sagas
+7. Composition root
+8. Security (Keycloak, permission-based authorization)
+9. Observability & scheduling
+10. Testing strategy (architecture / unit / integration)
+11. Build, style & tooling constraints
+12. Anatomy of one vertical slice — the shape to copy
+13. Glossary of the key abstractions
 
 ---
 
@@ -248,7 +247,7 @@ Test method naming: `Should_<Outcome>_When<Condition>` (unit + integration); AAA
 
 ## 11. Build, style & tooling constraints
 
-- The **reference repo** pins **`net8.0`** in `Directory.Build.props`. **Our build targets `net10.0`** — a deliberate, logged deviation (`docs/deviations-from-author.md`); the architecture is framework-agnostic, so everything else in this section carries over.
+- **We target `net10.0`.** (The course material is on .NET 8 — see `docs/deviations-from-author.md`.) The architecture is framework-agnostic, so everything else in this section applies unchanged.
 - `Nullable` enabled, `ImplicitUsings` enabled.
 - **`TreatWarningsAsErrors` + `CodeAnalysisTreatWarningsAsErrors` + `EnforceCodeStyleInBuild` + `AnalysisMode=All` + `SonarAnalyzer.CSharp`** — a warning fails the build.
 - `.editorconfig` (severity `error` on most): file-scoped namespaces; `using` outside namespace; System usings first; braces always; language keywords over BCL types; expression-bodied properties/accessors/operators/lambdas; `readonly` fields; no `this.`; no unused parameters; collection expressions (`[]`); `CA1515` (make public internal) disabled — public API surface is deliberately minimal, most types are `internal`.

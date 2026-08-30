@@ -1,14 +1,13 @@
 # Evently Engineering Rules
 
-Authoritative coding rules for **our Evently build in this repo** (`evently-learning-tracker`,
-.NET 10). Derived from the course / the author's reference repo `C:\GitHub\evently_source_code`
-— its architecture tests, `.editorconfig`, and `Directory.Build.props`. Full rationale and
-examples: [`../../docs/architecture/evently-deep-dive.md`](../../docs/architecture/evently-deep-dive.md).
+Authoritative coding rules for **our Evently build** (.NET 10), from the *Modular Monolith
+Architecture* course. Full rationale and examples:
+[`../../docs/architecture/evently-deep-dive.md`](../../docs/architecture/evently-deep-dive.md).
 
-In the reference repo every rule below is **enforced by an architecture test** (a violation
-fails `dotnet test`) or **by the compiler** (`TreatWarningsAsErrors`). We bring those tests
-and analyzer settings into this repo as we build; until a given check exists here, treat the
-rule as binding anyway. Don't ask to relax them; match them. Deliberate departures go in
+Each rule below is meant to be **enforced by an architecture test** (a violation fails
+`dotnet test`) or **by the compiler** (`TreatWarningsAsErrors`). We add those tests and
+analyzer settings as we build; until a given check exists, treat the rule as binding anyway.
+Don't ask to relax them; match them. Deliberate departures go in
 [`../../docs/deviations-from-author.md`](../../docs/deviations-from-author.md).
 
 ---
@@ -144,9 +143,9 @@ rule as binding anyway. Don't ask to relax them; match them. Deliberate departur
 
 ## R10 — Change discipline
 
-1. All work happens in **this repo**. Read the equivalent slice in the reference repo
-   (`C:\GitHub\evently_source_code`) for the pattern, then implement here — never edit or
-   build the reference repo.
+1. All work happens in **this repo**. A read-only reference implementation may be configured
+   in `.claude/settings.json` — read the equivalent slice there for the pattern, then
+   implement here; never edit or build it.
 2. Match the shape of the nearest existing slice we've already built — keep the codebase
    uniform; consistency beats cleverness.
 3. Validate: smallest relevant command for the changed area first, then `dotnet build`,
@@ -154,8 +153,8 @@ rule as binding anyway. Don't ask to relax them; match them. Deliberate departur
 4. A migration is required whenever an entity config or `DbSet` changes:
    `dotnet ef migrations add <Name> --project <Module>.Infrastructure --startup-project src/API/Evently.Api`.
 5. Never edit `bin/`, `obj/`, EF `*Designer.cs`, or `*ModelSnapshot.cs` by hand.
-6. We target **`net10.0`** (a logged deviation from the author's `net8.0`). When a course
-   step relies on an .NET 8-specific API or package version, use the .NET 10 equivalent and
-   note it in `docs/deviations-from-author.md`.
+6. We target **`net10.0`** (the course is on .NET 8 — a logged deviation). When a step relies
+   on an .NET 8-specific API or package version, use the .NET 10 equivalent and note it in
+   `docs/deviations-from-author.md`.
 7. When a step depends on a still-open decision (project layout, `Evently` naming, a library
    swap — see `AGENTS.md`), ask before committing to it.
