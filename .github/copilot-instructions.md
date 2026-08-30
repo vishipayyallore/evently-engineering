@@ -1,50 +1,62 @@
-# Copilot Instructions for Evently
+# Copilot Instructions — Evently Learning Tracker
 
 ## Workspace purpose
 
-This repo is the learning tracker for the Evently project. The canonical implementation lives in the sibling repository at `../evently_source_code`.
+This repo is a **learning tracker**: notes, task checklists, architecture analysis, and
+AI-assist configuration for building Evently. It has no application code. The canonical
+Evently implementation is the sibling repo at `../evently_source_code` (Milan Jovanović's
+*Modular Monolith Architecture* course codebase).
 
-Use this repo for:
-- tracking learning progress
-- capturing task checklists and implementation notes
-- recording architecture observations and constraints
+**All production code work happens in `../evently_source_code`**, not here — unless a task
+explicitly says to work in the tracker. Summaries here point back to source files rather than
+duplicating implementation code.
 
-Do not put production code here unless the task explicitly says to work in the tracker.
+## Canonical guidance (read these first)
 
-## Primary source of truth
+| File | What it is |
+|---|---|
+| `docs/architecture/evently-deep-dive.md` | Full architecture analysis of the source repo — layering, CQRS pipeline, outbox/inbox, sagas, testing, style |
+| `.claude/rules/evently-engineering-rules.md` | R1–R10, the enforced coding contract (each rule maps to an architecture test or a compiler setting) |
+| `.claude/skills/evently-vertical-slice/SKILL.md` | Add a command/query use case end-to-end |
+| `.claude/skills/evently-integration-event/SKILL.md` | Wire cross-module messaging |
+| `.claude/skills/evently-new-module/SKILL.md` | Scaffold a new module |
+| `.github/agents/architect.agent.md` | Architect role — design/boundary decisions before code |
+| `.github/agents/principal-engineer.agent.md` | Sr. Principal Engineer role — implementation + review |
 
-When a task involves code, use the source repo at `../evently_source_code`.
+These `.github/*` files mirror the `.claude/*` versions; the `.claude/*` copies are canonical.
 
 ## Architecture baseline
 
-The Evently source is a modular monolith shaped around business capabilities:
-- `src/API/Evently.Api`
-- `src/Common/Evently.Common.{Domain,Application,Infrastructure,Presentation}`
-- `src/Modules/{Events,Users,Ticketing,Attendance}`
-- `test/*` and module-level architecture/integration tests
+Modular monolith, one deployable (`src/API/Evently.Api`), four modules — **Users, Events,
+Ticketing, Attendance** — isolated at the assembly and DB-schema level.
 
-Follow these rules:
-- Domain -> Application -> Infrastructure -> Presentation
-- each module owns its domain model and application logic
-- no direct module-to-module dependencies outside explicit integration contracts
-- use domain events for in-module transitions and integration events for cross-module communication
-- keep outbox/inbox patterns intact for reliable messaging
+Hard rules (enforced by NetArchTest + `TreatWarningsAsErrors`):
+- Dependency flow per module: **Domain → Application → Infrastructure / Presentation**.
+  Domain depends on nothing but `Common.Domain`. Application never references Infrastructure
+  or Presentation.
+- **No module references another module** except its `*.IntegrationEvents` contract assembly.
+- Cross-module effects are async: publish an integration event (from a domain-event handler,
+  via the outbox); the other module consumes it (inbox) and keeps its own local copy.
+- Write path = EF + repository + `IUnitOfWork`. Read path = Dapper + `IDbConnectionFactory`
+  (no EF).
+- Every use case returns `Result` / `Result<T>`; business-rule failures are typed `Error`s,
+  never exceptions.
+- Domain aggregates: `sealed`, private constructors only, created via `static Result<T> Create`,
+  mutated via methods that raise domain events.
+- Default every new type to `internal` + `sealed`. Handlers/validators/event handlers follow
+  strict naming (`*CommandHandler`, `*QueryHandler`, `*Validator`, `*DomainEventHandler`,
+  `*IntegrationEventHandler`).
 
-## Quality bar
+## Build & validation (run in `../evently_source_code`)
 
-- Treat warnings as errors.
-- Keep code style consistent with the repo conventions.
-- Preserve architecture tests and analyzer enforcement.
-- Validate with the smallest relevant command that checks the changed behavior.
+```
+dotnet build Evently.sln
+dotnet test Evently.sln          # includes architecture + integration tests — must be green
+```
 
-## Local validation
+⚠️ **Target framework:** the source repo's `Directory.Build.props` currently pins
+`net8.0`, while the installed SDK is 10.x and `AGENTS.md` refers to a ".NET 10 workstream".
+Confirm the actual project configuration before changing any `TargetFramework` or SDK setting.
 
-This tracker follows the .NET 10 workstream for Evently planning and validation. Confirm the SDK in use before building or testing:
-
-- `dotnet --version` (expect .NET 10)
-- `dotnet restore Evently.sln`
-- `dotnet build Evently.sln`
-- `dotnet test Evently.sln`
-- `docker compose up --build` for app stack startup
-
-If the canonical source repo has a different active target in its project files, verify the actual configuration before changing project settings or forcing a framework update.
+A build **warning is an error** (SonarAnalyzer + .NET analyzers, `AnalysisMode=All`). Fix the
+cause, never suppress.

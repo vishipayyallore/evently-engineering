@@ -1,38 +1,77 @@
 ---
-applyTo: "**/*.{cs,csproj,sln,md}"
-description: "Use when working on Evently architecture, module boundaries, domain design, or cross-cutting reliability concerns."
+applyTo: "**/*.{cs,csproj,sln}"
+description: "Evently engineering rules — apply when working in the canonical source repo (../evently_source_code)."
 ---
 
-# Evently Architecture Instructions
+# Evently Engineering Rules (summary)
 
-## Architectural rules
+Canonical, full version with rationale: `.claude/rules/evently-engineering-rules.md`.
+Architecture analysis: `docs/architecture/evently-deep-dive.md`.
+Every rule below is enforced by an architecture test or by `TreatWarningsAsErrors`.
 
-- Keep Domain free of infrastructure and presentation concerns.
-- Keep Application focused on orchestration, validation, and use case logic.
-- Keep Infrastructure focused on persistence, message bus, integrations, and background jobs.
-- Keep Presentation focused on endpoints and adapters.
+## R1 — Module boundaries
+Modules (`Users`, `Events`, `Ticketing`, `Attendance`) never reference each other's
+`Domain`/`Application`/`Infrastructure`/`Presentation`. The only allowed cross-module
+reference is another module's `*.IntegrationEvents`. Cross-module data flow is async
+(integration events); each module keeps its own local copy. Shared behavior goes in `Common.*`.
 
-## Module rules
+## R2 — Layer dependencies
+Domain → (only `Common.Domain`). Application → own Domain + `Common.Application`, never
+Infrastructure/Presentation. Presentation → own Application + `Common.Presentation`, never
+Infrastructure. Infrastructure composes everything in its own module.
 
-- Treat each module as owning its domain model, application logic, infrastructure, and presentation surface.
-- Do not allow module-to-module dependencies except through explicit integration contracts.
-- Prefer one module to own one business capability.
-- Do not create cross-cutting feature folders when the existing module boundaries already fit the change.
+## R3 — Domain
+Aggregates: `sealed : Entity`, private parameterless + only-private constructors, private
+setters. Create via `public static Result<T> Create(...)`. State changes are methods that
+return `Result` and `Raise(...)` a `sealed record …DomainEvent : DomainEvent`. All failures
+are `Error`s from `<Aggregate>Errors.cs` with the right `ErrorType`. No `DateTime.UtcNow`, no
+I/O, no framework types in Domain.
 
-## Eventing rules
+## R4 — Application
+One folder per use case: `Application/<Aggregate>/<UseCase>/`. `…Command`/`…Query` =
+`public sealed record` implementing `ICommand`/`ICommand<T>`/`IQuery<T>`. Handlers =
+`internal sealed`, primary ctor, name ends `CommandHandler`/`QueryHandler`, return
+`Result`/`Result<T>`. Validators = `internal sealed : AbstractValidator<T>`, structural checks
+only. Write path: repository + one `unitOfWork.SaveChangesAsync`. Read path: `IDbConnectionFactory`
++ Dapper + hand-written SQL, columns aliased with `nameof(TResponse.Prop)`; no EF. Domain-event
+handlers = `internal sealed : DomainEventHandler<T>`, name ends `DomainEventHandler`; either
+update a projection or publish an integration event, not both. Never return a Domain entity.
 
-- Use domain events for in-module transitions.
-- Use integration events for cross-module communication.
-- Preserve outbox/inbox semantics and idempotent handlers for retries.
+## R5 — Infrastructure
+`DbContext` = `sealed : DbContext, IUnitOfWork`, `HasDefaultSchema`, snake_case, per-schema
+migrations history, applies the four outbox/inbox configs. EF configs + repositories =
+`internal sealed`; no `IQueryable` leaks. Register everything via `XModule.AddXModule` (with
+`Idempotent*` decorators) and `XModule.ConfigureConsumers`. External systems sit behind an
+Application interface.
 
-## Quality and validation
+## R6 — Presentation
+One `internal sealed class <UseCase> : IEndpoint` per file. End with
+`result.Match(Results.Ok, ApiResults.Problem)`. Always `.RequireAuthorization(Permissions.X)`
++ `.WithTags(Tags.X)`. Integration-event handlers = `internal sealed : IntegrationEventHandler<T>`,
+name ends `IntegrationEventHandler`, translate to a command via `ISender`, throw
+`EventlyException` on failure. No `DbContext`/repository in Presentation — only `ISender`.
 
-- Check the smallest relevant validation path first.
-- Use solution-level checks for cross-module or shared-infrastructure work.
-- Keep architecture tests passing.
-- Treat the .NET 10 workstream as the default target for planning and validation in this tracker.
-- Do not bypass warnings-as-errors or style analyzer enforcement.
+## R7 — Cross-module messaging
+Integration events = `public sealed record : IntegrationEvent` in `*.IntegrationEvents`,
+primitives only, additive changes only. Publish only from a domain-event handler via
+`IEventBus.PublishAsync`. Handlers must be logically idempotent. Multi-module coordinated
+workflows → a MassTransit saga in the initiating module's Presentation (state in Redis).
 
-## Repository rule
+## R8 — Testing
+New aggregate behavior → unit test (`Faker`, FluentAssertions, `AssertDomainEventWasPublished<T>`).
+New use case → integration test through `ISender` with `BaseIntegrationTest` +
+`CleanDatabaseAsync()` + `Poller`. New type category → an architecture test. Names:
+`Should_<Outcome>_When<Condition>`. `dotnet test Evently.sln` green = done.
 
-This learning tracker is for notes and progress. Production work belongs in the sibling Evently source repo. Summaries should reference canonical source files instead of duplicating implementation details here. If the source repo target differs from the intended .NET 10 workstream, confirm the actual project configuration before changing project files.
+## R9 — Style (compiler-enforced)
+File-scoped namespaces; `using` outside namespace; braces always; language keywords over BCL
+types; expression-bodied members; `readonly` fields; explicit accessibility; default
+`internal` + `sealed`; collection expressions `[]`; primary ctors; no `this.`; no unused
+params; nullable on. A warning is a build error.
+
+## R10 — Change discipline
+Match the nearest existing slice. Validate smallest-first, then `dotnet build Evently.sln`,
+then the module's tests, then `dotnet test Evently.sln`. Entity-config/`DbSet` change → add an
+EF migration. Never hand-edit `bin/`, `obj/`, `*Designer.cs`, `*ModelSnapshot.cs`. Do not
+change `TargetFramework` (currently `net8.0` in `Directory.Build.props`) without an explicit
+decision.
