@@ -6,7 +6,7 @@ description: Add a new use case (command or query) to an Evently module end-to-e
 # Add a vertical slice to an Evently module
 
 Work in `C:\GitHub\evently-learning-tracker`. Follow [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md)
-(rules R3–R6, R8, R9). Reference: `docs/architecture/evently-deep-dive.md` §12 from the author's repo when needed.
+(rules R3–R6, R8, R9). Reference: `docs/architecture/evently-deep-dive.md` §12 for the slice anatomy.
 
 ## 1. Decide command vs query
 

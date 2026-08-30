@@ -7,7 +7,7 @@ description: Wire cross-module communication in Evently (C:\GitHub\evently-learn
 
 Work in `C:\GitHub\evently-learning-tracker`. Rules R1, R7 in
 [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md).
-Use `docs/architecture/evently-deep-dive.md` as a comparison reference when the author's pattern helps explain the design.
+See `docs/architecture/evently-deep-dive.md` §6 for the full cross-module messaging design.
 
 ## Mental model
 

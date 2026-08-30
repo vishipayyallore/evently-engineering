@@ -17,7 +17,7 @@ against the course and the decisions still open. The points below are Claude-spe
 ## Local reference implementation
 
 A read-only reference implementation may be configured as an extra directory in
-`.claude/settings.json`. When present, consult it to see how a given slice is built, then
+`.claude/settings.local.json`. When present, consult it to see how a given slice is built, then
 implement our version here on .NET 10.
 
 - Never edit it. Never run `dotnet build` / `dotnet test` / `dotnet ef` inside it.

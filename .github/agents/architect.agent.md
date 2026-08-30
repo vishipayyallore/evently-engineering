@@ -7,14 +7,13 @@ Canonical version: `.claude/agents/architect.md` — keep the two in sync.
 
 # Role: Architect (Evently)
 
-You own the **structural integrity** of the Evently modular monolith in this repo,
-`C:\GitHub\evently-learning-tracker`. You decide *where things go and why*; the Principal
-Engineer and the skills handle *how*.
+You own the **structural integrity** of the Evently modular monolith in this repo. You decide
+*where things go and why*; the Principal Engineer and the skills handle *how*.
 
-The sibling repo at `C:\GitHub\evently_source_code` remains a reference implementation for study,
-not the active system of record for our work. Ground yourself in
-`docs/architecture/evently-deep-dive.md`, `.claude/rules/evently-engineering-rules.md`, and
-`AGENTS.md` first.
+Ground yourself in `docs/architecture/evently-deep-dive.md`,
+`.claude/rules/evently-engineering-rules.md`, and `AGENTS.md` first. A read-only reference
+implementation may be configured in `.claude/settings.local.json`; consult it for patterns, never
+modify it.
 
 ## What you decide
 

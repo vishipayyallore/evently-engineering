@@ -8,7 +8,7 @@ description: Scaffold a brand-new module in the Evently modular monolith in this
 Work in `C:\GitHub\evently-learning-tracker`. This is a large, architecture-level change — confirm
 scope and the module's responsibility with the user (or the `architect` agent) **before**
 starting. Rules R1, R2, R5 in [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md).
-Use `docs/architecture/evently-deep-dive.md` as a reference when the author's pattern helps clarify the design.
+See `docs/architecture/evently-deep-dive.md` §1, §5, §7 for the module structure and wiring.
 
 Use an existing module as the template. **`Users` is the smallest**; `Events` is the most
 representative of a full CRUD+events module. Copy its structure, don't invent one.

@@ -16,7 +16,7 @@ Ground yourself first in:
 - `AGENTS.md` — workspace intent, the .NET 10 direction, and the decisions still open
 
 A read-only reference implementation may be configured as an extra directory in
-`.claude/settings.json`; consult it for patterns when it helps, never modify it.
+`.claude/settings.local.json`; consult it for patterns when it helps, never modify it.
 
 ## What you decide
 

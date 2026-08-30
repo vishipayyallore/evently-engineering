@@ -1,23 +1,23 @@
-# Copilot Instructions — Evently Learning Tracker
+# Copilot Instructions — Evently
 
 ## Workspace purpose
 
-This repo is the active Evently learning implementation. It is the single source of truth for
-our work in this project, and we are building it in .NET 10 here.
+This repository is the Evently implementation and the single source of truth. We build it
+here, on **.NET 10**, working through the *Modular Monolith Architecture* course. It is
+currently greenfield — `src/` and `tests/` are empty; early tasks scaffold the solution.
 
-The sibling repo at `../evently_source_code` is the author's reference implementation. It is kept
-for comparison, pattern analysis, and course study. We do not treat it as the active repository
-for this project unless a task specifically asks to inspect it.
-
-Summaries here point back to source files in this repo and to the reference repo only where it helps
-explain architecture or differences.
+`AGENTS.md` is the authoritative workspace guide, including the decisions still open. A
+read-only reference implementation may be configured as an extra directory in
+`.claude/settings.local.json` — consult it for patterns, never modify it.
 
 ## Canonical guidance (read these first)
 
 | File | What it is |
 |---|---|
-| `docs/architecture/evently-deep-dive.md` | Architecture analysis of the author's repo — useful reference for the design patterns |
-| `.claude/rules/evently-engineering-rules.md` | R1–R10, the enforced coding contract we adapt in this repo |
+| `AGENTS.md` | How we work; decisions still open |
+| `docs/architecture/evently-deep-dive.md` | Architecture reference — the design patterns to follow |
+| `docs/deviations-from-author.md` | Running log of deliberate departures from the course |
+| `.claude/rules/evently-engineering-rules.md` | R1–R10, the coding contract |
 | `.claude/skills/evently-vertical-slice/SKILL.md` | Add a command/query use case end-to-end |
 | `.claude/skills/evently-integration-event/SKILL.md` | Wire cross-module messaging |
 | `.claude/skills/evently-new-module/SKILL.md` | Scaffold a new module |
@@ -28,10 +28,10 @@ These `.github/*` files mirror the `.claude/*` versions; the `.claude/*` copies 
 
 ## Architecture baseline
 
-Modular monolith, one deployable (`src/API/Evently.Api`), four modules — **Users, Events,
+Modular monolith, one deployable (`src/API/Evently.Api`), four modules — **Events, Users,
 Ticketing, Attendance** — isolated at the assembly and DB-schema level.
 
-Hard rules (enforced by NetArchTest + `TreatWarningsAsErrors`):
+Hard rules (to be enforced by NetArchTest + `TreatWarningsAsErrors`):
 - Dependency flow per module: **Domain → Application → Infrastructure / Presentation**.
   Domain depends on nothing but `Common.Domain`. Application never references Infrastructure
   or Presentation.
@@ -50,17 +50,12 @@ Hard rules (enforced by NetArchTest + `TreatWarningsAsErrors`):
 
 ## Build & validation
 
-Use the .NET 10 workstream for this repository, and validate from the working repo root:
+Target **.NET 10**. Once the solution exists, validate from the repo root:
 
 ```
-dotnet restore
-dotnet build
-dotnet test
+dotnet build Evently.sln
+dotnet test Evently.sln
 ```
-
-When comparing with the author's repo, use it as a learning reference only. If the author's repo
-shows a different target framework or a different implementation detail, we keep the working repo as
-our active system of record unless a deliberate decision is made to diverge.
 
 A build **warning is an error** (SonarAnalyzer + .NET analyzers, `AnalysisMode=All`). Fix the
 cause, never suppress.

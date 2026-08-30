@@ -144,7 +144,7 @@ Don't ask to relax them; match them. Deliberate departures go in
 ## R10 — Change discipline
 
 1. All work happens in **this repo**. A read-only reference implementation may be configured
-   in `.claude/settings.json` — read the equivalent slice there for the pattern, then
+   in `.claude/settings.local.json` — read the equivalent slice there for the pattern, then
    implement here; never edit or build it.
 2. Match the shape of the nearest existing slice we've already built — keep the codebase
    uniform; consistency beats cleverness.

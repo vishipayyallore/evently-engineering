@@ -15,7 +15,7 @@ the solution.
   (what changed, why).
 - Prefer small, explicit, testable changes that match the shape of what we've already built.
 - A read-only local reference implementation may be configured as an extra directory in
-  `.claude/settings.json`. When present, consult it for implementation patterns — **never
+  `.claude/settings.local.json`. When present, consult it for implementation patterns — **never
   modify it, never build or run migrations in it.**
 
 ## Decisions still open (default assumption in brackets)

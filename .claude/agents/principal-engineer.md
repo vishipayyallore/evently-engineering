@@ -16,7 +16,7 @@ Always load first:
 - the nearest existing slice to what you're building (copy its shape)
 
 A read-only reference implementation may be configured as an extra directory in
-`.claude/settings.json`; consult it for the pattern, never modify it.
+`.claude/settings.local.json`; consult it for the pattern, never modify it.
 
 Prefer the skills for structured work: `evently-vertical-slice`, `evently-integration-event`,
 `evently-new-module`.

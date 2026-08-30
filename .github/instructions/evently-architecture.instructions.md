@@ -1,16 +1,16 @@
 ---
 applyTo: "**/*.{cs,csproj,sln}"
-description: "Evently engineering rules — apply when working in the active Evently repo (C:\GitHub\evently-learning-tracker)."
+description: "Evently engineering rules — apply to all C#/project work in this repo (our .NET 10 Evently build)."
 ---
 
 # Evently Engineering Rules (summary)
 
-This repository is the active Evently implementation for our learning project, and we are
-working in the .NET 10 workstream here.
+We build Evently here, on **.NET 10**.
 
 Canonical, full version with rationale: `.claude/rules/evently-engineering-rules.md`.
-Architecture analysis reference: `docs/architecture/evently-deep-dive.md`.
-Every rule below is enforced by an architecture test or by `TreatWarningsAsErrors`.
+Architecture reference: `docs/architecture/evently-deep-dive.md`.
+Each rule below is meant to be enforced by an architecture test or by
+`TreatWarningsAsErrors` (added as we build).
 
 ## R1 — Module boundaries
 Modules (`Users`, `Events`, `Ticketing`, `Attendance`) never reference each other's
@@ -76,6 +76,5 @@ params; nullable on. A warning is a build error.
 Match the nearest existing slice. Validate smallest-first, then `dotnet build Evently.sln`,
 then the module's tests, then `dotnet test Evently.sln`. Entity-config/`DbSet` change → add an
 EF migration. Never hand-edit `bin/`, `obj/`, `*Designer.cs`, `*ModelSnapshot.cs`. We target
-`net10.0` (the author's repo is `net8.0` — a logged deviation); use the .NET 10 equivalent
-when a course step relies on an .NET 8-specific API and note it in
-`docs/deviations-from-author.md`.
+`net10.0` (the course is on .NET 8 — a logged deviation); use the .NET 10 equivalent when a
+step relies on an .NET 8-specific API and note it in `docs/deviations-from-author.md`.
