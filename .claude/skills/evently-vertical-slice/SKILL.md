@@ -1,12 +1,22 @@
 ---
 name: evently-vertical-slice
-description: Add a new use case (command or query) to an Evently module end-to-end in the active repo (C:\GitHub\evently-learning-tracker). Use when the task is "add an endpoint / feature / command / query" to Events, Users, Ticketing, or Attendance, or asks to implement a CQRS slice following Evently conventions.
+description: Add ONE use case (a command or a query) to an existing Evently module, end to end — Domain → Application → Presentation → tests. Use when the task is "add an endpoint / feature / command / query" to Events, Users, Ticketing, or Attendance. Not for creating a new module (use evently-new-module) or cross-module messaging (use evently-integration-event).
 ---
 
 # Add a vertical slice to an Evently module
 
-Work in `C:\GitHub\evently-learning-tracker`. Follow [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md)
+Work in this repo. Follow [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md)
 (rules R3–R6, R8, R9). Reference: `docs/architecture/evently-deep-dive.md` §12 for the slice anatomy.
+
+## Not this skill
+
+- **New module / bounded context** → `evently-new-module`.
+- **An effect in another module** (publish/consume an integration event) → `evently-integration-event`.
+- **The target module or aggregate doesn't exist yet** → stop; that's an architecture
+  decision — ask for the `architect` agent.
+- **A still-open decision applies** (project layout, `Evently` naming, a library swap — see
+  `AGENTS.md`) → ask before proceeding.
+- This skill adds exactly one use case. Multiple related use cases = run it once per slice.
 
 ## 1. Decide command vs query
 
@@ -96,11 +106,16 @@ Add `Permissions.<Perm>` (`"<resource>:<action>"`) and `Tags.<Tag>` if they don'
 dotnet ef migrations add <Name> --project src/Modules/<Module>/Evently.Modules.<Module>.Infrastructure --startup-project src/API/Evently.Api
 ```
 
-## 8. Validate
+## Done when
 
-```
-dotnet build Evently.sln
-dotnet test --filter "FullyQualifiedName~Evently.Modules.<Module>"
-dotnet test Evently.sln
-```
-All green — including the architecture tests (naming, sealed, internal, layering).
+- [ ] Command/query, handler, validator (command only), endpoint created in the folders above,
+      matching a sibling slice's shape.
+- [ ] Invariants + domain events live on the aggregate; failures are `Error`s from
+      `<Aggregate>Errors.cs`; handler returns `Result` and never throws for expected failures.
+- [ ] Endpoint ends with `result.Match(...)`, has `.RequireAuthorization` + `.WithTags`.
+- [ ] Unit test for new aggregate behavior; integration test through `ISender`.
+- [ ] Migration added iff an entity config / `DbSet` changed.
+- [ ] `dotnet build Evently.sln` — 0 warnings.
+- [ ] `dotnet test Evently.sln` green, **including** the architecture tests (naming, sealed,
+      `internal`, layering).
+- [ ] Report: files added, rule numbers satisfied, migration y/n, test output.

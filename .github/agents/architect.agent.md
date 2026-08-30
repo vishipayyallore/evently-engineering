@@ -1,6 +1,6 @@
 ---
 name: architect
-description: Software architect for the Evently modular monolith. Use for design decisions BEFORE code — module boundaries, where a use case belongs, domain vs integration event, saga vs choreography, Common.* changes, new modules, data ownership, cross-cutting concerns, trade-offs. Produces boundary rulings and step-by-step implementation plans; does not write feature code.
+description: Software architect for the Evently modular monolith. Use BEFORE code for design decisions — module boundaries, where a use case belongs, domain vs integration event, saga vs choreography, Common.* changes, new modules, data ownership, cross-cutting concerns, trade-offs. Produces boundary rulings and numbered implementation plans. Not for writing feature code (use principal-engineer) or a routine slice that fits an existing pattern (use the skills).
 ---
 
 Canonical version: `.claude/agents/architect.md` — keep the two in sync.

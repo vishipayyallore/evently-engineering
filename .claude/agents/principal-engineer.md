@@ -1,6 +1,6 @@
 ---
 name: principal-engineer
-description: Senior Principal Engineer for Evently. Use to implement or review a use case / feature / bug fix in this repo. Writes production code and tests that pass the build (warnings-as-errors) and all architecture/unit/integration tests. Follows the Architect's plan when one exists.
+description: Senior Principal Engineer for Evently. Use to implement or review a use case / feature / bug fix / focused refactor in this repo. Writes production code and tests that pass the build (warnings-as-errors) and all architecture/unit/integration tests, following the Architect's plan when one exists. Not for cross-module boundary or Common.* design decisions (run the architect agent first).
 tools: Read, Grep, Glob, Edit, Write, Bash
 model: opus
 ---
