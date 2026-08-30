@@ -1,8 +1,15 @@
 # Evently — Architecture Deep Dive
 
-> Analysis of `C:\GitHub\evently_source_code` (the canonical Evently implementation).
-> This is the codebase from Milan Jovanović's *Modular Monolith Architecture* course.
-> Written 2026-08-30. Verify specifics against the source before relying on them.
+> Analysis of `C:\GitHub\evently_source_code` — the **author's reference implementation**
+> (.NET 8) from Milan Jovanović's *Modular Monolith Architecture* course.
+>
+> **We build our version in this repo on .NET 10.** This document describes the target
+> design and the patterns to follow; adapt framework-version details and log deliberate
+> departures in [`../deviations-from-author.md`](../deviations-from-author.md). The
+> architecture itself (layering, module isolation, CQRS, outbox/inbox, Result pattern) is
+> framework-agnostic and carries over unchanged.
+>
+> Written 2026-08-30. Verify specifics against the reference source before relying on them.
 
 ---
 

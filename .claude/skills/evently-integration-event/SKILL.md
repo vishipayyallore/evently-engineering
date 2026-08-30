@@ -1,13 +1,13 @@
 ---
 name: evently-integration-event
-description: Wire cross-module communication in Evently (C:\GitHub\evently_source_code) — publish an integration event from one module and consume it in another via the outbox/inbox. Use when a change in one module (Events, Users, Ticketing, Attendance) must cause an effect in another module, or the task mentions integration events, module-to-module messaging, or "keep a local copy".
+description: Wire cross-module communication in Evently (C:\GitHub\evently-learning-tracker) — publish an integration event from one module and consume it in another via the outbox/inbox. Use when a change in one module (Events, Users, Ticketing, Attendance) must cause an effect in another module, or the task mentions integration events, module-to-module messaging, or "keep a local copy".
 ---
 
 # Wire an integration event between Evently modules
 
-Work in `C:\GitHub\evently_source_code`. Rules R1, R7 in
+Work in `C:\GitHub\evently-learning-tracker`. Rules R1, R7 in
 [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md).
-Reference: `docs/architecture/evently-deep-dive.md` §6.
+Use `docs/architecture/evently-deep-dive.md` as a comparison reference when the author's pattern helps explain the design.
 
 ## Mental model
 

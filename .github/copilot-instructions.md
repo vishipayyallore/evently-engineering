@@ -2,21 +2,22 @@
 
 ## Workspace purpose
 
-This repo is a **learning tracker**: notes, task checklists, architecture analysis, and
-AI-assist configuration for building Evently. It has no application code. The canonical
-Evently implementation is the sibling repo at `../evently_source_code` (Milan Jovanović's
-*Modular Monolith Architecture* course codebase).
+This repo is the active Evently learning implementation. It is the single source of truth for
+our work in this project, and we are building it in .NET 10 here.
 
-**All production code work happens in `../evently_source_code`**, not here — unless a task
-explicitly says to work in the tracker. Summaries here point back to source files rather than
-duplicating implementation code.
+The sibling repo at `../evently_source_code` is the author's reference implementation. It is kept
+for comparison, pattern analysis, and course study. We do not treat it as the active repository
+for this project unless a task specifically asks to inspect it.
+
+Summaries here point back to source files in this repo and to the reference repo only where it helps
+explain architecture or differences.
 
 ## Canonical guidance (read these first)
 
 | File | What it is |
 |---|---|
-| `docs/architecture/evently-deep-dive.md` | Full architecture analysis of the source repo — layering, CQRS pipeline, outbox/inbox, sagas, testing, style |
-| `.claude/rules/evently-engineering-rules.md` | R1–R10, the enforced coding contract (each rule maps to an architecture test or a compiler setting) |
+| `docs/architecture/evently-deep-dive.md` | Architecture analysis of the author's repo — useful reference for the design patterns |
+| `.claude/rules/evently-engineering-rules.md` | R1–R10, the enforced coding contract we adapt in this repo |
 | `.claude/skills/evently-vertical-slice/SKILL.md` | Add a command/query use case end-to-end |
 | `.claude/skills/evently-integration-event/SKILL.md` | Wire cross-module messaging |
 | `.claude/skills/evently-new-module/SKILL.md` | Scaffold a new module |
@@ -47,16 +48,19 @@ Hard rules (enforced by NetArchTest + `TreatWarningsAsErrors`):
   strict naming (`*CommandHandler`, `*QueryHandler`, `*Validator`, `*DomainEventHandler`,
   `*IntegrationEventHandler`).
 
-## Build & validation (run in `../evently_source_code`)
+## Build & validation
+
+Use the .NET 10 workstream for this repository, and validate from the working repo root:
 
 ```
-dotnet build Evently.sln
-dotnet test Evently.sln          # includes architecture + integration tests — must be green
+dotnet restore
+dotnet build
+dotnet test
 ```
 
-⚠️ **Target framework:** the source repo's `Directory.Build.props` currently pins
-`net8.0`, while the installed SDK is 10.x and `AGENTS.md` refers to a ".NET 10 workstream".
-Confirm the actual project configuration before changing any `TargetFramework` or SDK setting.
+When comparing with the author's repo, use it as a learning reference only. If the author's repo
+shows a different target framework or a different implementation detail, we keep the working repo as
+our active system of record unless a deliberate decision is made to diverge.
 
 A build **warning is an error** (SonarAnalyzer + .NET analyzers, `AnalysisMode=All`). Fix the
 cause, never suppress.

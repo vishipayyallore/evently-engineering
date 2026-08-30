@@ -1,12 +1,15 @@
 ---
 applyTo: "**/*.{cs,csproj,sln}"
-description: "Evently engineering rules — apply when working in the canonical source repo (../evently_source_code)."
+description: "Evently engineering rules — apply when working in the active Evently repo (C:\GitHub\evently-learning-tracker)."
 ---
 
 # Evently Engineering Rules (summary)
 
+This repository is the active Evently implementation for our learning project, and we are
+working in the .NET 10 workstream here.
+
 Canonical, full version with rationale: `.claude/rules/evently-engineering-rules.md`.
-Architecture analysis: `docs/architecture/evently-deep-dive.md`.
+Architecture analysis reference: `docs/architecture/evently-deep-dive.md`.
 Every rule below is enforced by an architecture test or by `TreatWarningsAsErrors`.
 
 ## R1 — Module boundaries

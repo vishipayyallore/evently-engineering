@@ -1,7 +1,7 @@
 # evently-new-module
 
 Scaffold a brand-new module (bounded context) in the Evently modular monolith
-(`../evently_source_code`) with the full project set, `DbContext`, schema, outbox/inbox, DI
+(`C:\GitHub\evently-learning-tracker`) with the full project set, `DbContext`, schema, outbox/inbox, DI
 entry point, and test projects.
 
 **Canonical, full instructions:** [`.claude/skills/evently-new-module/SKILL.md`](../../../.claude/skills/evently-new-module/SKILL.md)

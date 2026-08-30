@@ -1,7 +1,7 @@
 # evently-vertical-slice
 
 Add a new use case (command or query) to an Evently module end-to-end in
-`../evently_source_code`, following the CQRS conventions.
+`C:\GitHub\evently-learning-tracker`, following the CQRS conventions.
 
 **Canonical, full instructions:** [`.claude/skills/evently-vertical-slice/SKILL.md`](../../../.claude/skills/evently-vertical-slice/SKILL.md)
 

@@ -1,11 +1,15 @@
 # Evently Engineering Rules
 
-Authoritative coding rules for work in `C:\GitHub\evently_source_code`. Derived from the
-codebase's own architecture tests, `.editorconfig`, and `Directory.Build.props`. Full
-rationale and examples: [`../../docs/architecture/evently-deep-dive.md`](../../docs/architecture/evently-deep-dive.md).
+Authoritative coding rules for **our Evently build in this repo** (`evently-learning-tracker`,
+.NET 10). Derived from the course / the author's reference repo `C:\GitHub\evently_source_code`
+— its architecture tests, `.editorconfig`, and `Directory.Build.props`. Full rationale and
+examples: [`../../docs/architecture/evently-deep-dive.md`](../../docs/architecture/evently-deep-dive.md).
 
-Every rule below is either **enforced by a test** (a violation fails `dotnet test`) or
-**enforced by the compiler** (`TreatWarningsAsErrors`). Do not ask to relax them; match them.
+In the reference repo every rule below is **enforced by an architecture test** (a violation
+fails `dotnet test`) or **by the compiler** (`TreatWarningsAsErrors`). We bring those tests
+and analyzer settings into this repo as we build; until a given check exists here, treat the
+rule as binding anyway. Don't ask to relax them; match them. Deliberate departures go in
+[`../../docs/deviations-from-author.md`](../../docs/deviations-from-author.md).
 
 ---
 
@@ -140,13 +144,18 @@ Every rule below is either **enforced by a test** (a violation fails `dotnet tes
 
 ## R10 — Change discipline
 
-1. Match the shape of the nearest existing slice — the codebase is highly uniform; consistency
-   beats cleverness.
-2. Smallest validation command for the changed area first, then `dotnet build Evently.sln`,
-   then the relevant module's test projects, then `dotnet test Evently.sln`.
-3. A migration is required whenever an entity config or `DbSet` changes:
+1. All work happens in **this repo**. Read the equivalent slice in the reference repo
+   (`C:\GitHub\evently_source_code`) for the pattern, then implement here — never edit or
+   build the reference repo.
+2. Match the shape of the nearest existing slice we've already built — keep the codebase
+   uniform; consistency beats cleverness.
+3. Validate: smallest relevant command for the changed area first, then `dotnet build`,
+   then the relevant test projects, then `dotnet test` for the solution.
+4. A migration is required whenever an entity config or `DbSet` changes:
    `dotnet ef migrations add <Name> --project <Module>.Infrastructure --startup-project src/API/Evently.Api`.
-4. Never edit `bin/`, `obj/`, `*Designer.cs`, or `*ModelSnapshot.cs` by hand.
-5. `Directory.Build.props` currently targets `net8.0` despite an SDK 10 install and AGENTS.md's
-   ".NET 10" language — do not change `TargetFramework` without an explicit decision from the
-   user or Architect.
+5. Never edit `bin/`, `obj/`, EF `*Designer.cs`, or `*ModelSnapshot.cs` by hand.
+6. We target **`net10.0`** (a logged deviation from the author's `net8.0`). When a course
+   step relies on an .NET 8-specific API or package version, use the .NET 10 equivalent and
+   note it in `docs/deviations-from-author.md`.
+7. When a step depends on a still-open decision (project layout, `Evently` naming, a library
+   swap — see `AGENTS.md`), ask before committing to it.

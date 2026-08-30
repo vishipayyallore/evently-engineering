@@ -4,72 +4,67 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-This is a **learning tracker**, not an application. It holds notes, task checklists, and
-progress artifacts for someone building the Evently project from a video course. It has no
-build, no tests, and no application code — `src/` and `tests/` contain only `.gitkeep`.
+`C:\GitHub\evently-learning-tracker` is where **we build Evently** while following the
+*Modular Monolith Architecture* video course. It is the implementation and the **single
+source of truth** — all code, tests, and docs live here. Target framework: **.NET 10**.
 
-The canonical Evently implementation lives in the **sibling repo** at
-`C:\GitHub\evently_source_code` (already granted as an additional working directory in
-`.claude/settings.json`). Any request that involves code changes should be made there, not
-here, unless the user explicitly says to work in the tracker.
+Right now it is greenfield: `src/` and `tests/` hold only `.gitkeep`. Early tasks will
+scaffold the solution.
 
-`AGENTS.md` is the authoritative guide for this workspace — read it. The points below
-supplement it.
+`AGENTS.md` is the authoritative workspace guide — **read it first**. It covers the two-repo
+setup, how we work against the course, and the decisions still open. The points below are
+Claude-specific detail.
 
-## Assist artifacts for Evently work
+## The reference repo — `C:\GitHub\evently_source_code`
 
-Deep-dive analysis and reusable AI-assist config for building Evently live in this repo:
+The **author's** implementation, on **.NET 8**. Granted as a read directory in
+`.claude/settings.json`. Use it **read-only** to see how the author built a given slice, then
+implement our version here on .NET 10.
 
-- `docs/architecture/evently-deep-dive.md` — full architecture analysis of the source repo
-  (layering, CQRS pipeline, outbox/inbox, sagas, testing, style). Read this before any
-  non-trivial source-repo task.
-- `.claude/rules/evently-engineering-rules.md` — R1–R10, the enforced coding contract
-  (module boundaries, layer deps, domain/application/infra/presentation rules, messaging,
-  testing, style). Every rule maps to an architecture test or a compiler error.
+- Never edit it. Never run `dotnet build` / `dotnet test` / `dotnet ef` inside it.
+- Expect to deviate from it (framework, and other choices). Log meaningful deviations in
+  `docs/deviations-from-author.md`.
+
+## Assist artifacts
+
+- `docs/architecture/evently-deep-dive.md` — full analysis of the reference design (layering,
+  CQRS pipeline, outbox/inbox, sagas, testing, style). Read before implementing a non-trivial
+  slice. Describes the author's .NET 8 code; we adapt it to .NET 10 here.
+- `docs/deviations-from-author.md` — running log of where our build differs from the course.
+- `.claude/rules/evently-engineering-rules.md` — R1–R10, the coding contract. In the
+  reference repo every rule is backed by an architecture test; we bring those tests over as
+  we build.
 - `.claude/skills/` — `evently-vertical-slice` (add a command/query end-to-end),
   `evently-integration-event` (cross-module messaging), `evently-new-module` (scaffold a
-  bounded context).
-- `.claude/agents/` — `architect` (design/boundary decisions, plans — read-only, run before
-  coding cross-module or `Common.*` changes) and `principal-engineer` (implementation +
-  review to the conventions).
+  module).
+- `.claude/agents/` — `architect` (design/boundary decisions, plans — run before cross-module
+  or `Common.*` changes) and `principal-engineer` (implementation + review).
+- `.github/` mirrors the above for GitHub Copilot; the `.claude/` copies are canonical.
 
-## Working rule
+## Build & validate (in this repo)
 
-- Tracker repo → notes, tasks, learning summaries, links back to source files.
-- `../evently_source_code` → all actual code, builds, and tests.
-- When summarizing findings, point back to the module and file in the source repo rather
-  than copying implementation code into this tracker.
-
-## Source repo (`../evently_source_code`) essentials
-
-Modular monolith. Dependency flow within each module: **Domain → Application → Infrastructure → Presentation**.
-
-- `src/API/Evently.Api` — HTTP API entry point
-- `src/Common/Evently.Common.{Domain,Application,Infrastructure,Presentation}` — shared concerns
-- `src/Modules/{Events,Users,Ticketing,Attendance}/*` — one project per layer, plus
-  `IntegrationEvents` (cross-module contracts) and per-module `UnitTests` /
-  `IntegrationTests` / `ArchitectureTests`
-- `test/Evently.ArchitectureTests`, `test/Evently.IntegrationTests` — solution-wide tests
-
-Add feature work to the relevant module; don't create cross-cutting folders. Keep tests in
-the module-level or shared test projects. Never touch `bin/`/`obj/`.
-
-Build/validate from the source repo root:
+Once the solution exists:
 
 ```
-dotnet restore Evently.sln
 dotnet build Evently.sln
 dotnet test Evently.sln
-dotnet test --filter "FullyQualifiedName~Evently.Modules.Events.UnitTests"   # single project/test
-docker compose up --build   # local app stack
+dotnet test --filter "FullyQualifiedName~Evently.Modules.Events.UnitTests"   # one project
 ```
 
-Prefer solution-level commands; scope to a single project only for narrow tasks.
+Infrastructure for local runs (Postgres, Redis, Keycloak, Seq, Jaeger) will come via
+`docker compose` — mirror the reference repo's `docker-compose.yml` when we get there.
 
-## Version note
+## Target architecture (what we're building toward)
 
-`AGENTS.md` describes a ".NET 10 workstream" and the installed SDK is 10.0.303, but
-`../evently_source_code/Directory.Build.props` currently pins `<TargetFramework>net8.0</TargetFramework>`.
-Confirm which target a task expects before changing project files. That `Directory.Build.props`
-also enables: nullable, `TreatWarningsAsErrors`, `EnforceCodeStyleInBuild`, `AnalysisMode=All`,
-and the SonarAnalyzer.CSharp package — expect style/analyzer violations to fail the build.
+Modular monolith, one deployable API, isolated modules (Events, Users, Ticketing,
+Attendance), each `Domain → Application → Infrastructure → Presentation` + an
+`IntegrationEvents` contract project. Modules communicate only via `*.IntegrationEvents` and
+async messaging (domain event → outbox → integration event → inbox). Write path = EF + repo +
+`IUnitOfWork`; read path = Dapper + `IDbConnectionFactory`. Every use case returns
+`Result` / `Result<T>`. Details: `docs/architecture/evently-deep-dive.md`.
+
+## Open decisions
+
+See `AGENTS.md` → "Decisions still open". Default: mirror the author's layout and `Evently`
+naming, faithful .NET 10 port, same library stack (MediatR/FluentValidation/MassTransit/
+Dapper/Quartz/Serilog). If a task turns on an undecided point, ask.

@@ -1,6 +1,6 @@
 # evently-integration-event
 
-Wire cross-module communication in Evently (`../evently_source_code`): publish an integration
+Wire cross-module communication in Evently (`C:\GitHub\evently-learning-tracker`): publish an integration
 event from one module and consume it in another via the outbox/inbox.
 
 **Canonical, full instructions:** [`.claude/skills/evently-integration-event/SKILL.md`](../../../.claude/skills/evently-integration-event/SKILL.md)

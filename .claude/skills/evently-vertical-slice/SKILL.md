@@ -1,12 +1,12 @@
 ---
 name: evently-vertical-slice
-description: Add a new use case (command or query) to an Evently module end-to-end in the canonical source repo (C:\GitHub\evently_source_code). Use when the task is "add an endpoint / feature / command / query" to Events, Users, Ticketing, or Attendance, or asks to implement a CQRS slice following Evently conventions.
+description: Add a new use case (command or query) to an Evently module end-to-end in the active repo (C:\GitHub\evently-learning-tracker). Use when the task is "add an endpoint / feature / command / query" to Events, Users, Ticketing, or Attendance, or asks to implement a CQRS slice following Evently conventions.
 ---
 
 # Add a vertical slice to an Evently module
 
-Work in `C:\GitHub\evently_source_code`. Follow [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md)
-(rules R3–R6, R8, R9). Reference: `docs/architecture/evently-deep-dive.md` §12.
+Work in `C:\GitHub\evently-learning-tracker`. Follow [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md)
+(rules R3–R6, R8, R9). Reference: `docs/architecture/evently-deep-dive.md` §12 from the author's repo when needed.
 
 ## 1. Decide command vs query
 

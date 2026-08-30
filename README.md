@@ -6,16 +6,22 @@
 [![Platform](https://img.shields.io/badge/platform-.NET%2010-512BD4?style=for-the-badge)](README.md)
 [![Events](https://img.shields.io/badge/events-async%20integration-FF6D00?style=for-the-badge)](README.md)
 [![Testing](https://img.shields.io/badge/testing-architecture%20enforced-D50000?style=for-the-badge)](README.md)
-[![Source](https://img.shields.io/badge/source-canonical%20repo-00897B?style=for-the-badge)](README.md)
+[![Source](https://img.shields.io/badge/source-working%20repo-00897B?style=for-the-badge)](README.md)
 [![Focus](https://img.shields.io/badge/focus-learning%20tracker-F9A825?style=for-the-badge)](README.md)
 
-This repository is the learning and progress tracker for the Evently project. The actual implementation lives in the sibling source repository at `C:\GitHub\evently_source_code`.
+This repository is the working Evently implementation and the single source of truth for our project work. We are building it here in `C:\GitHub\evently-learning-tracker` using the .NET 10 workstream.
 
-The purpose of this tracker is to capture architecture notes, learning checkpoints, implementation observations, and task tracking without mixing them into the production codebase while following the .NET 10 workstream.
+The sibling repository at `C:\GitHub\evently_source_code` belongs to the author of the video course. It remains available as a reference implementation for comparison and pattern study, but it is not the active repository for our work.
+
+The purpose of this tracker is to capture architecture notes, learning checkpoints, implementation observations, and task tracking while keeping our actual project work in the working repo.
 
 ## Source of truth
 
-All real application code, builds, and validation live in the source repo:
+Our active application code, builds, and validation live here in this repo:
+
+- `C:\GitHub\evently-learning-tracker`
+
+The author's repo remains useful as a reference only:
 
 - `C:\GitHub\evently_source_code`
 
@@ -25,7 +31,7 @@ This repo should remain focused on:
 - task tracking
 - architecture observations
 - learning summaries
-- references back to canonical source files
+- references back to our working implementation and to course patterns
 
 ## Architecture summary of Evently
 

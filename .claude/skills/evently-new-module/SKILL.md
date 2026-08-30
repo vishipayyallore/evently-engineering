@@ -1,14 +1,14 @@
 ---
 name: evently-new-module
-description: Scaffold a brand-new module in the Evently modular monolith (C:\GitHub\evently_source_code) with the full Domain/Application/Infrastructure/Presentation/IntegrationEvents project set, DbContext, schema, outbox+inbox, DI entry point, and test projects. Use only when the task explicitly asks to add a new bounded context / module to Evently.
+description: Scaffold a brand-new module in the Evently modular monolith in this repo (C:\GitHub\evently-learning-tracker) with the full Domain/Application/Infrastructure/Presentation/IntegrationEvents project set, DbContext, schema, outbox+inbox, DI entry point, and test projects. Use only when the task explicitly asks to add a new bounded context / module to Evently.
 ---
 
 # Scaffold a new Evently module
 
-Work in `C:\GitHub\evently_source_code`. This is a large, architecture-level change — confirm
+Work in `C:\GitHub\evently-learning-tracker`. This is a large, architecture-level change — confirm
 scope and the module's responsibility with the user (or the `architect` agent) **before**
 starting. Rules R1, R2, R5 in [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md).
-Reference: `docs/architecture/evently-deep-dive.md` §1, §5, §7.
+Use `docs/architecture/evently-deep-dive.md` as a reference when the author's pattern helps clarify the design.
 
 Use an existing module as the template. **`Users` is the smallest**; `Events` is the most
 representative of a full CRUD+events module. Copy its structure, don't invent one.
