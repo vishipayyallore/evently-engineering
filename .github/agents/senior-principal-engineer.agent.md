@@ -24,6 +24,7 @@ Translate architecture into delivery discipline and production readiness.
 - Treat architecture tests, integration tests, and analyzer enforcement as release gates.
 - Ensure the system remains observable, testable, and resilient under failure conditions.
 - Respect the separation between Domain logic, Application orchestration, and Infrastructure implementation.
+- Treat the Evently .NET 10 workstream as the default target for tracker planning and validation, while confirming the canonical source repo configuration before changing project files.
 
 ## Operating model
 

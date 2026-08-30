@@ -39,12 +39,12 @@ Follow these rules:
 
 ## Local validation
 
-When validating the source repo, prefer task-scoped commands and then solution-level checks when the change crosses module boundaries:
+This tracker follows the .NET 10 workstream for Evently planning and validation. Confirm the SDK in use before building or testing:
 
-- `dotnet --version`
+- `dotnet --version` (expect .NET 10)
 - `dotnet restore Evently.sln`
 - `dotnet build Evently.sln`
 - `dotnet test Evently.sln`
 - `docker compose up --build` for app stack startup
 
-When the repo is intentionally pinned to a different target, follow the repo’s current project version instead of forcing a change.
+If the canonical source repo has a different active target in its project files, verify the actual configuration before changing project settings or forcing a framework update.

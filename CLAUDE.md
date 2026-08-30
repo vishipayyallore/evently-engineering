@@ -16,6 +16,23 @@ here, unless the user explicitly says to work in the tracker.
 `AGENTS.md` is the authoritative guide for this workspace — read it. The points below
 supplement it.
 
+## Assist artifacts for Evently work
+
+Deep-dive analysis and reusable AI-assist config for building Evently live in this repo:
+
+- `docs/architecture/evently-deep-dive.md` — full architecture analysis of the source repo
+  (layering, CQRS pipeline, outbox/inbox, sagas, testing, style). Read this before any
+  non-trivial source-repo task.
+- `.claude/rules/evently-engineering-rules.md` — R1–R10, the enforced coding contract
+  (module boundaries, layer deps, domain/application/infra/presentation rules, messaging,
+  testing, style). Every rule maps to an architecture test or a compiler error.
+- `.claude/skills/` — `evently-vertical-slice` (add a command/query end-to-end),
+  `evently-integration-event` (cross-module messaging), `evently-new-module` (scaffold a
+  bounded context).
+- `.claude/agents/` — `architect` (design/boundary decisions, plans — read-only, run before
+  coding cross-module or `Common.*` changes) and `principal-engineer` (implementation +
+  review to the conventions).
+
 ## Working rule
 
 - Tracker repo → notes, tasks, learning summaries, links back to source files.

@@ -30,8 +30,9 @@ description: "Use when working on Evently architecture, module boundaries, domai
 - Check the smallest relevant validation path first.
 - Use solution-level checks for cross-module or shared-infrastructure work.
 - Keep architecture tests passing.
+- Treat the .NET 10 workstream as the default target for planning and validation in this tracker.
 - Do not bypass warnings-as-errors or style analyzer enforcement.
 
 ## Repository rule
 
-This learning tracker is for notes and progress. Production work belongs in the sibling Evently source repo. Summaries should reference canonical source files instead of duplicating implementation details here.
+This learning tracker is for notes and progress. Production work belongs in the sibling Evently source repo. Summaries should reference canonical source files instead of duplicating implementation details here. If the source repo target differs from the intended .NET 10 workstream, confirm the actual project configuration before changing project files.

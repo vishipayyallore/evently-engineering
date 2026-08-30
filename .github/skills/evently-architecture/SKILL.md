@@ -17,6 +17,7 @@ Use this skill when you need to reason about Evently's architecture, module boun
 3. Ask whether the concern is domain logic, orchestration, persistence, or presentation adaptation.
 4. Check for hidden coupling, integration-event misuse, or architecture violations.
 5. Validate the smallest relevant path before concluding the design.
+6. Treat .NET 10 as the default target for this tracker’s planning and validation context, while confirming the source repo’s actual project configuration before changing project files.
 
 ## Evently heuristics
 
@@ -25,6 +26,7 @@ Use this skill when you need to reason about Evently's architecture, module boun
 - Keep infrastructure concerns in Infrastructure.
 - Keep endpoint registration in Presentation.
 - Preserve module autonomy and explicit integration contracts.
+- Prefer the Evently .NET 10 workstream unless the canonical source repo explicitly requires a different target.
 
 ## Exit criteria
 

@@ -25,6 +25,7 @@ Protect the long-term design of the system while keeping it practical and mainta
 - Use Application for commands, queries, validation, and orchestration.
 - Use Presentation for endpoints and HTTP-driven adapters.
 - Respect outbox/inbox reliability patterns and idempotent event handling.
+- Treat the Evently workstream as .NET 10 unless the canonical source repo's project files clearly require a different target.
 
 ## Decision approach
 
