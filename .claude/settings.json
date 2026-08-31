@@ -1,2 +1,7 @@
 {
+    "permissions": {
+        "additionalDirectories": [
+            "C:\\GitHub\\evently_source_code"
+        ]
+    }
 }

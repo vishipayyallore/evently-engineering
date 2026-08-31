@@ -1,0 +1,28 @@
+name: Python CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Byte-compile tracked Python files
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(git ls-files -- '*.py')
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "No tracked .py files; skipping Python compile checks."
+            exit 0
+          fi
+          python -m py_compile "${files[@]}"
+

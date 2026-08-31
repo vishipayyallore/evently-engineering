@@ -1,0 +1,68 @@
+name: Skills Parity (.github ↔ .cursor)
+
+on:
+  push:
+    paths:
+      - '.github/skills/**'
+      - '.cursor/skills/**'
+      - '.github/workflows/ci-skills-parity.yml'
+  pull_request:
+    paths:
+      - '.github/skills/**'
+      - '.cursor/skills/**'
+      - '.github/workflows/ci-skills-parity.yml'
+  workflow_dispatch:
+
+jobs:
+  skills-parity:
+    name: Verify .github/skills ↔ .cursor/skills mirror
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check parity
+        run: |
+          exit_code=0
+
+          # Every SKILL.md under .github/skills must exist and match in .cursor/skills
+          for f in $(find .github/skills -name 'SKILL.md' 2>/dev/null); do
+            rel="${f#.github/skills/}"
+            cursor_file=".cursor/skills/$rel"
+            if [ ! -f "$cursor_file" ]; then
+              echo "MISSING in .cursor/skills: $rel"
+              exit_code=1
+            elif ! diff -q "$f" "$cursor_file" > /dev/null 2>&1; then
+              echo "MISMATCH: $rel"
+              diff --unified "$f" "$cursor_file" || true
+              exit_code=1
+            fi
+          done
+
+          # Every SKILL.md under .cursor/skills must also exist in .github/skills
+          for f in $(find .cursor/skills -name 'SKILL.md' 2>/dev/null); do
+            rel="${f#.cursor/skills/}"
+            github_file=".github/skills/$rel"
+            if [ ! -f "$github_file" ]; then
+              echo "EXTRA in .cursor/skills (not in .github): $rel"
+              exit_code=1
+            fi
+          done
+
+          # Check README.md parity as well
+          for f in $(find .github/skills -name 'README.md' 2>/dev/null); do
+            rel="${f#.github/skills/}"
+            cursor_file=".cursor/skills/$rel"
+            if [ -f "$cursor_file" ] && ! diff -q "$f" "$cursor_file" > /dev/null 2>&1; then
+              echo "README MISMATCH: $rel"
+              diff --unified "$f" "$cursor_file" || true
+              exit_code=1
+            fi
+          done
+
+          if [ "$exit_code" -eq 0 ]; then
+            echo "All skills files are in sync."
+          fi
+
+          exit $exit_code
