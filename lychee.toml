@@ -1,0 +1,25 @@
+# lychee link-checker configuration — evently-engineering
+# https://github.com/lycheeverse/lychee
+
+# HTTP status codes to treat as success (rate-limit responses included so
+# external hosts that throttle CI runners don't fail the build).
+accept = ["200..=299", "429"]
+
+# Be patient and forgiving with flaky external hosts.
+max_retries = 2
+retry_wait_time = 2
+timeout = 20
+
+# Skip mail links and loopback / private addresses.
+exclude_mail = true
+exclude_loopback = true
+exclude_private = true
+
+# Shields.io badge endpoints are images, not documentation links, and they
+# rate-limit CI aggressively. Nothing to verify here.
+exclude = [
+  '^https://img\.shields\.io/',
+]
+
+# Don't check links that only appear inside fenced/inline code samples.
+include_verbatim = false
