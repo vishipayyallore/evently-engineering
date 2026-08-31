@@ -1,5 +1,5 @@
 # lychee link-checker configuration — evently-engineering
-# https://github.com/lycheeverse/lychee
+# https://github.com/lycheeverse/lychee/blob/master/lychee.example.toml
 
 # HTTP status codes to treat as success (rate-limit responses included so
 # external hosts that throttle CI runners don't fail the build).
@@ -10,8 +10,8 @@ max_retries = 2
 retry_wait_time = 2
 timeout = 20
 
-# Skip mail links and loopback / private addresses.
-exclude_mail = true
+# Skip loopback / private addresses. Mail links are excluded by default
+# (include_mail is false).
 exclude_loopback = true
 exclude_private = true
 
