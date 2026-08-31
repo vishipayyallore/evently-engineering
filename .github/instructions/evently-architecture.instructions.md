@@ -12,7 +12,18 @@ Architecture reference: `docs/architecture/evently-deep-dive.md`.
 Each rule below is meant to be enforced by an architecture test or by
 `TreatWarningsAsErrors` (added as we build).
 
-## R1 — Module boundaries
+## R0 — Phased approach: monolith first, then modular
+We build Evently **monolith first, then modular**. **Phase 1 — Monolith:** one deployable
+(`Evently.Api`); the four contexts (Users, Events, Ticketing, Attendance) are **folders**, not
+projects; shared database/tables; in-process method calls. Binding now: R2 (folder/namespace
+layering), R3, R4, R6, R8, R9, R10. **Phase 2 — Modular Monolith:** refactor into isolated
+modules — (1) code organization (separate projects + `Common.*`), (2) communication (sync
+public API, then async messaging), (3) schema per module, (4) NetArchTest boundaries;
+activates R1, R7, and the per-module `DbContext`/schema/`XModule` clauses of R5. Rules tagged
+**[Phase 2]** apply only once modularizing; unmarked = **[Phase 1]**, binding now. See
+`docs/mermaid-diagrams/phase-roadmap.mmd`.
+
+## R1 — Module boundaries [Phase 2]
 Modules (`Users`, `Events`, `Ticketing`, `Attendance`) never reference each other's
 `Domain`/`Application`/`Infrastructure`/`Presentation`. The only allowed cross-module
 reference is another module's `*.IntegrationEvents`. Cross-module data flow is async
@@ -41,6 +52,8 @@ handlers = `internal sealed : DomainEventHandler<T>`, name ends `DomainEventHand
 update a projection or publish an integration event, not both. Never return a Domain entity.
 
 ## R5 — Infrastructure
+**[Phase 2] for the per-module shape** (per-module `DbContext`, `HasDefaultSchema`, `XModule`);
+in Phase 1 a single composition root + single `DbContext`, no per-schema split.
 `DbContext` = `sealed : DbContext, IUnitOfWork`, `HasDefaultSchema`, snake_case, per-schema
 migrations history, applies the four outbox/inbox configs. EF configs + repositories =
 `internal sealed`; no `IQueryable` leaks. Register everything via `XModule.AddXModule` (with
@@ -54,7 +67,7 @@ One `internal sealed class <UseCase> : IEndpoint` per file. End with
 name ends `IntegrationEventHandler`, translate to a command via `ISender`, throw
 `EventlyException` on failure. No `DbContext`/repository in Presentation — only `ISender`.
 
-## R7 — Cross-module messaging
+## R7 — Cross-module messaging [Phase 2]
 Integration events = `public sealed record : IntegrationEvent` in `*.IntegrationEvents`,
 primitives only, additive changes only. Publish only from a domain-event handler via
 `IEventBus.PublishAsync`. Handlers must be logically idempotent. Multi-module coordinated
