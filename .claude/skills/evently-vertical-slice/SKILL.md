@@ -8,6 +8,11 @@ description: Add ONE use case (a command or a query) to an existing Evently modu
 Work in this repo. Follow [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md)
 (rules R3–R6, R8, R9). Reference: `docs/architecture/evently-deep-dive.md` §12 for the slice anatomy.
 
+> **Build phase.** This slice pattern applies from **Phase 1** (monolith). In Phase 1 a module
+> is a **folder**, not a project — use the same Domain/Application/Presentation layout under
+> `src/…` folders, and skip the cross-module integration-event step (the `*.IntegrationEvents`
+> project in §9), which is **[Phase 2]**. Numbered steps below start at 1, never 0.
+
 ## Not this skill
 
 - **New module / bounded context** → `evently-new-module`.

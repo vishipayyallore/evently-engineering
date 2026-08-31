@@ -10,13 +10,18 @@ analyzer settings as we build; until a given check exists, treat the rule as bin
 Don't ask to relax them; match them. Deliberate departures go in
 [`../../docs/deviations-from-author.md`](../../docs/deviations-from-author.md).
 
+**Numbering convention:** ordered lists, numbered steps, phases, and identifiers start at
+**1**, never **0** — in code and in docs. (The rule series therefore runs R1–R10; the phased
+approach below is a preamble, not a numbered rule.)
+
 ---
 
-## R0 — Phased approach: monolith first, then modular
+## Phased approach — monolith first, then modular
 
 We build Evently **monolith first, then modular** (Fowler's *Monolith First*; the course's
-*Modularize Your Monolith* path). See
-[`../../docs/mermaid-diagrams/phase-roadmap.mmd`](../../docs/mermaid-diagrams/phase-roadmap.mmd)
+*Modularize Your Monolith* path). See the
+[build roadmap](../../docs/images/phase-roadmap.png)
+([source](../../docs/mermaid-diagrams/phase-roadmap.mmd))
 and `docs/architecture/evently-deep-dive.md` → “Build approach”.
 
 - **Phase 1 — Monolith.** One deployable (`Evently.Api`); the four bounded contexts (Users,

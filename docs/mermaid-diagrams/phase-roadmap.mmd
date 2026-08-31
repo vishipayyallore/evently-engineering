@@ -1,3 +1,22 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#EAF1FB"
+    primaryBorderColor: "#B7CDE8"
+    primaryTextColor: "#33475B"
+    lineColor: "#9FB8D6"
+    secondaryColor: "#EDE7F6"
+    secondaryBorderColor: "#C6BCE0"
+    tertiaryColor: "#E8F5E9"
+    tertiaryBorderColor: "#BBD9BE"
+    clusterBkg: "#F5F8FD"
+    clusterBorder: "#CBD9EC"
+    noteBkgColor: "#FFF8E1"
+    noteBorderColor: "#EAD9A0"
+    messageTextColor: "#5B6B7B"
+    fontFamily: "Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+---
 %% Evently build roadmap: start as a monolith, evolve into a modular monolith.
 %% Source of truth for the phased approach. Preview with a Mermaid extension.
 flowchart LR
@@ -20,7 +39,7 @@ flowchart LR
 
     C ==>|"refactor, behavior preserved"| D
 
-    classDef phase1 fill:#FFF3E0,stroke:#FB8C00,color:#000;
-    classDef phase2 fill:#EDE7F6,stroke:#5E35B1,color:#000;
+    classDef phase1 fill:#FFF3E0,stroke:#E0B084,color:#33475B;
+    classDef phase2 fill:#EDE7F6,stroke:#B7A6D9,color:#33475B;
     class A,B,C phase1;
     class D,E,F,G phase2;

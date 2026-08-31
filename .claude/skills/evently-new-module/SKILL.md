@@ -9,6 +9,10 @@ Work in this repo. Rules R1, R2, R5 in
 [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md).
 See `docs/architecture/evently-deep-dive.md` §1, §5, §7 for the module structure and wiring.
 
+> **Build phase.** Separate module projects are **[Phase 2]** (module code organization). In
+> Phase 1 a bounded context is a **folder** inside `Evently.Api`, not a project set — only run
+> this skill once we start modularizing. Numbered steps below start at 1, never 0.
+
 Use an existing module as the template. **`Users` is the smallest**; `Events` is the most
 representative of a full CRUD+events module. Copy its structure, don't invent one.
 

@@ -1,3 +1,22 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#EAF1FB"
+    primaryBorderColor: "#B7CDE8"
+    primaryTextColor: "#33475B"
+    lineColor: "#9FB8D6"
+    secondaryColor: "#EDE7F6"
+    secondaryBorderColor: "#C6BCE0"
+    tertiaryColor: "#E8F5E9"
+    tertiaryBorderColor: "#BBD9BE"
+    clusterBkg: "#F5F8FD"
+    clusterBorder: "#CBD9EC"
+    noteBkgColor: "#FFF8E1"
+    noteBorderColor: "#EAD9A0"
+    messageTextColor: "#5B6B7B"
+    fontFamily: "Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+---
 sequenceDiagram
 %% Cross-module communication (Phase 2): domain event -> outbox -> integration event -> inbox -> command.
 %% Each module keeps its own local copy of the data it needs via transactional in/outbox tables.

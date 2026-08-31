@@ -16,7 +16,9 @@ course's *Modularize Your Monolith* path. This document describes the **Phase 2 
 architecture**; we arrive there by evolving a working monolith, not by scaffolding the full
 modular structure up front.
 
-See [`phase-roadmap.mmd`](../mermaid-diagrams/phase-roadmap.mmd) for the roadmap at a glance.
+![Evently build roadmap: monolith first, then modular](../images/phase-roadmap.png)
+
+*Source: [`phase-roadmap.mmd`](../mermaid-diagrams/phase-roadmap.mmd).*
 
 - **Phase 1 — Monolith.** One deployable (`src/API/Evently.Api`), features built as vertical
   slices with **CQRS + the `Result` pattern** and a **pure Domain**. The four bounded contexts
@@ -39,17 +41,18 @@ rules — R1, R7, per-schema persistence — which apply once we start modulariz
 
 ### Diagrams
 
-Mermaid sources live in [`../mermaid-diagrams/`](../mermaid-diagrams) (preview with a Mermaid
-extension, e.g. *Markdown Preview Mermaid Support*):
+Rendered PNGs live in [`../images/`](../images); the Mermaid sources are in
+[`../mermaid-diagrams/`](../mermaid-diagrams). Regenerate the PNGs after editing a source with
+`scripts/export-mermaid.ps1`. Each diagram is embedded in its most relevant section below.
 
-| Diagram | File | Phase |
-|---|---|---|
-| Build roadmap (monolith → modular) | [`phase-roadmap.mmd`](../mermaid-diagrams/phase-roadmap.mmd) | both |
-| System shape / context | [`system-context.mmd`](../mermaid-diagrams/system-context.mmd) | 2 |
-| Per-module layering | [`module-layering.mmd`](../mermaid-diagrams/module-layering.mmd) | 1→2 |
-| CQRS request pipeline | [`cqrs-pipeline.mmd`](../mermaid-diagrams/cqrs-pipeline.mmd) | 1 |
-| Outbox/inbox cross-module messaging | [`outbox-inbox-messaging.mmd`](../mermaid-diagrams/outbox-inbox-messaging.mmd) | 2 |
-| Cancel-event saga | [`saga.mmd`](../mermaid-diagrams/saga.mmd) | 2 |
+| Diagram | Rendered | Source | Phase |
+|---|---|---|---|
+| Build roadmap (monolith → modular) | [PNG](../images/phase-roadmap.png) | [mmd](../mermaid-diagrams/phase-roadmap.mmd) | both |
+| System shape / context | [PNG](../images/system-context.png) | [mmd](../mermaid-diagrams/system-context.mmd) | 2 |
+| Per-module layering | [PNG](../images/module-layering.png) | [mmd](../mermaid-diagrams/module-layering.mmd) | 1→2 |
+| CQRS request pipeline | [PNG](../images/cqrs-pipeline.png) | [mmd](../mermaid-diagrams/cqrs-pipeline.mmd) | 1 |
+| Outbox/inbox cross-module messaging | [PNG](../images/outbox-inbox-messaging.png) | [mmd](../mermaid-diagrams/outbox-inbox-messaging.mmd) | 2 |
+| Cancel-event saga | [PNG](../images/saga.png) | [mmd](../mermaid-diagrams/saga.mmd) | 2 |
 
 ## What this covers
 
@@ -71,10 +74,12 @@ extension, e.g. *Markdown Preview Mermaid Support*):
 
 ## 1. System shape
 
-> Diagrams: [`system-context.mmd`](../mermaid-diagrams/system-context.mmd) (Phase 2 target),
-> [`module-layering.mmd`](../mermaid-diagrams/module-layering.mmd) (per-module dependency flow).
-> In Phase 1 the four contexts are folders in one project; the layering still holds as folder
-> boundaries.
+![Evently system shape](../images/system-context.png)
+
+> Phase 2 target. In Phase 1 the four contexts are folders in one project; the layering still
+> holds as folder boundaries. Sources:
+> [`system-context.mmd`](../mermaid-diagrams/system-context.mmd),
+> [`module-layering.mmd`](../mermaid-diagrams/module-layering.mmd).
 
 **One deployable** — `src/API/Evently.Api` — hosting **four modules** that are isolated at the assembly and database-schema level but run in one process and one database.
 
@@ -89,6 +94,8 @@ Evently.Api (composition root: Program.cs)
 ```
 
 ### Per-module project layout (Events shown; all four are identical in shape)
+
+![Per-module layering](../images/module-layering.png)
 
 | Project | References | Contains |
 |---|---|---|
@@ -137,7 +144,9 @@ These are **executable** — they run in CI as xUnit tests using NetArchTest. Tr
 
 ## 3. Request handling — the CQRS pipeline
 
-> Diagram: [`cqrs-pipeline.mmd`](../mermaid-diagrams/cqrs-pipeline.mmd). Applies from **Phase 1**.
+![CQRS request pipeline](../images/cqrs-pipeline.png)
+
+> Source: [`cqrs-pipeline.mmd`](../mermaid-diagrams/cqrs-pipeline.mmd). Applies from **Phase 1**.
 
 Every use case is a MediatR request that returns a `Result` or `Result<T>`.
 
@@ -204,9 +213,12 @@ HTTP endpoint (minimal API)
 
 ## 6. Cross-module communication (the heart of the design)
 
-> **Phase 2.** Diagrams: [`outbox-inbox-messaging.mmd`](../mermaid-diagrams/outbox-inbox-messaging.mmd),
-> [`saga.mmd`](../mermaid-diagrams/saga.mmd). In Phase 1 these interactions are direct in-process
-> method calls; this section is the target we refactor toward.
+![Outbox/inbox cross-module messaging](../images/outbox-inbox-messaging.png)
+
+> **Phase 2.** In Phase 1 these interactions are direct in-process method calls; this section is
+> the target we refactor toward. Sources:
+> [`outbox-inbox-messaging.mmd`](../mermaid-diagrams/outbox-inbox-messaging.mmd),
+> [`saga.mmd`](../mermaid-diagrams/saga.mmd) (§6c).
 
 Modules never call each other directly. Two async mechanisms, both backed by transactional in/outbox tables **per module**.
 
@@ -246,6 +258,8 @@ Integration-event handlers live in **`*.Presentation`** (`internal sealed`, `*In
 Consumer registration: `XModule.ConfigureConsumers` (a `static Action<IRegistrationConfigurator>`) is passed into `AddInfrastructure` from `Program.cs`.
 
 ### 6c. Sagas (orchestrated multi-module workflows)
+
+![Cancel-event saga](../images/saga.png)
 
 `CancelEventSaga` (`Events.Presentation`, a `MassTransitStateMachine<CancelEventState>`) coordinates event cancellation:
 `EventCanceledIntegrationEvent` → publish `EventCancellationStartedIntegrationEvent` → wait for **both** `EventPaymentsRefundedIntegrationEvent` (Ticketing) and `EventTicketsArchivedIntegrationEvent` (Ticketing) via a `CompositeEvent` → publish `EventCancellationCompletedIntegrationEvent` → `Finalize()`.
