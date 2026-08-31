@@ -1,0 +1,25 @@
+sequenceDiagram
+%% Cross-module communication (Phase 2): domain event -> outbox -> integration event -> inbox -> command.
+%% Each module keeps its own local copy of the data it needs via transactional in/outbox tables.
+    participant Agg as Producer aggregate
+    participant Int as InsertOutboxMessagesInterceptor
+    participant Outbox as producer.outbox_messages
+    participant OJob as ProcessOutboxJob (Quartz)
+    participant DEH as DomainEventHandler (Application)
+    participant Bus as IEventBus / MassTransit
+    participant Cons as IntegrationEventConsumer (Consumer module)
+    participant Inbox as consumer.inbox_messages
+    participant IJob as ProcessInboxJob (Quartz)
+    participant IEH as IntegrationEventHandler (Presentation)
+    participant Cmd as ISender.Send(Command)
+
+    Agg->>Int: Raise(DomainEvent) + SaveChangesAsync
+    Int->>Outbox: write domain event (same transaction)
+    OJob->>Outbox: poll unprocessed (FOR UPDATE)
+    OJob->>DEH: dispatch (idempotent decorator)
+    DEH->>Bus: PublishAsync(IntegrationEvent)
+    Bus->>Cons: deliver
+    Cons->>Inbox: write integration event
+    IJob->>Inbox: poll unprocessed (FOR UPDATE)
+    IJob->>IEH: dispatch (idempotent decorator)
+    IEH->>Cmd: Send(local command, idempotent)

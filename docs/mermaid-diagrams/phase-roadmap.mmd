@@ -1,0 +1,26 @@
+%% Evently build roadmap: start as a monolith, evolve into a modular monolith.
+%% Source of truth for the phased approach. Preview with a Mermaid extension.
+flowchart LR
+    subgraph P1["Phase 1 — Monolith"]
+        direction TB
+        A["Single deployable API<br/>(Evently.Api)"]
+        B["Vertical slices: CQRS + Result<br/>Domain kept pure"]
+        C["Shared database & tables<br/>in-process method calls<br/>immediate consistency"]
+        A --> B --> C
+    end
+
+    subgraph P2["Phase 2 — Modular Monolith"]
+        direction TB
+        D["1. Module code organization<br/>bounded contexts in separate projects<br/>Domain / Application / Infrastructure / Presentation + Common.*"]
+        E["2. Module communication<br/>sync via public API, then<br/>async via messaging (outbox / integration events / inbox)"]
+        F["3. Data isolation<br/>schema per module (logical, Level 2+)"]
+        G["4. Boundary enforcement<br/>NetArchTest architecture tests"]
+        D --> E --> F --> G
+    end
+
+    C ==>|"refactor, behavior preserved"| D
+
+    classDef phase1 fill:#FFF3E0,stroke:#FB8C00,color:#000;
+    classDef phase2 fill:#EDE7F6,stroke:#5E35B1,color:#000;
+    class A,B,C phase1;
+    class D,E,F,G phase2;

@@ -9,6 +9,48 @@
 >
 > First drafted 2026-08-30. Update it as our implementation takes shape and as decisions land.
 
+## Build approach — monolith first, then modular
+
+We build Evently in **two phases**, following the *Monolith First* movement (Fowler) and the
+course's *Modularize Your Monolith* path. This document describes the **Phase 2 target
+architecture**; we arrive there by evolving a working monolith, not by scaffolding the full
+modular structure up front.
+
+See [`phase-roadmap.mmd`](../mermaid-diagrams/phase-roadmap.mmd) for the roadmap at a glance.
+
+- **Phase 1 — Monolith.** One deployable (`src/API/Evently.Api`), features built as vertical
+  slices with **CQRS + the `Result` pattern** and a **pure Domain**. The four bounded contexts
+  (Users, Events, Ticketing, Attendance) exist as **folders**, not separate projects. Shared
+  database and tables, in-process method calls, immediate consistency. Module isolation,
+  integration events, per-schema data, and isolation architecture tests are **not** enforced
+  yet.
+- **Phase 2 — Modular Monolith.** Refactor the monolith into isolated modules while preserving
+  behavior, in the course's order: **(1)** module code organization (separate
+  Domain/Application/Infrastructure/Presentation projects + `Common.*`), **(2)** module
+  communication — synchronous via a public API, then asynchronous via messaging
+  (outbox → integration events → inbox), **(3)** data isolation — a **schema per module**
+  (logical isolation, at least Level 2), **(4)** boundary enforcement — **NetArchTest**
+  architecture tests.
+
+The rules (R1–R10) are tagged **[Phase 1]** (binding now — Domain purity, CQRS/`Result`,
+naming, style, testing) or **[Phase 2]** (the module-isolation and cross-module-messaging
+rules — R1, R7, per-schema persistence — which apply once we start modularizing). See
+`.claude/rules/evently-engineering-rules.md`.
+
+### Diagrams
+
+Mermaid sources live in [`../mermaid-diagrams/`](../mermaid-diagrams) (preview with a Mermaid
+extension, e.g. *Markdown Preview Mermaid Support*):
+
+| Diagram | File | Phase |
+|---|---|---|
+| Build roadmap (monolith → modular) | [`phase-roadmap.mmd`](../mermaid-diagrams/phase-roadmap.mmd) | both |
+| System shape / context | [`system-context.mmd`](../mermaid-diagrams/system-context.mmd) | 2 |
+| Per-module layering | [`module-layering.mmd`](../mermaid-diagrams/module-layering.mmd) | 1→2 |
+| CQRS request pipeline | [`cqrs-pipeline.mmd`](../mermaid-diagrams/cqrs-pipeline.mmd) | 1 |
+| Outbox/inbox cross-module messaging | [`outbox-inbox-messaging.mmd`](../mermaid-diagrams/outbox-inbox-messaging.mmd) | 2 |
+| Cancel-event saga | [`saga.mmd`](../mermaid-diagrams/saga.mmd) | 2 |
+
 ## What this covers
 
 1. System shape — modules, project layout per module
@@ -28,6 +70,11 @@
 ---
 
 ## 1. System shape
+
+> Diagrams: [`system-context.mmd`](../mermaid-diagrams/system-context.mmd) (Phase 2 target),
+> [`module-layering.mmd`](../mermaid-diagrams/module-layering.mmd) (per-module dependency flow).
+> In Phase 1 the four contexts are folders in one project; the layering still holds as folder
+> boundaries.
 
 **One deployable** — `src/API/Evently.Api` — hosting **four modules** that are isolated at the assembly and database-schema level but run in one process and one database.
 
@@ -89,6 +136,8 @@ These are **executable** — they run in CI as xUnit tests using NetArchTest. Tr
 ---
 
 ## 3. Request handling — the CQRS pipeline
+
+> Diagram: [`cqrs-pipeline.mmd`](../mermaid-diagrams/cqrs-pipeline.mmd). Applies from **Phase 1**.
 
 Every use case is a MediatR request that returns a `Result` or `Result<T>`.
 
@@ -154,6 +203,10 @@ HTTP endpoint (minimal API)
 ---
 
 ## 6. Cross-module communication (the heart of the design)
+
+> **Phase 2.** Diagrams: [`outbox-inbox-messaging.mmd`](../mermaid-diagrams/outbox-inbox-messaging.mmd),
+> [`saga.mmd`](../mermaid-diagrams/saga.mmd). In Phase 1 these interactions are direct in-process
+> method calls; this section is the target we refactor toward.
 
 Modules never call each other directly. Two async mechanisms, both backed by transactional in/outbox tables **per module**.
 

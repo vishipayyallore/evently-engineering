@@ -1,0 +1,18 @@
+%% Per-module layering. Dependencies point inward; Domain depends on nothing but Common.Domain.
+%% Enforced by LayerTests (NetArchTest) once Phase 2 architecture tests are in place.
+flowchart TB
+    presentation["Presentation<br/>minimal-API endpoints, integration-event handlers,<br/>Permissions, Tags, sagas"]
+    application["Application<br/>commands, queries, handlers, validators,<br/>domain-event handlers, abstraction interfaces"]
+    infrastructure["Infrastructure<br/>DbContext, EF configs, repositories,<br/>module DI, outbox/inbox jobs, external clients"]
+    domain["Domain<br/>aggregates (Entity), domain events,<br/>errors, repository interfaces"]
+    commonDomain["Common.Domain"]
+
+    presentation --> application
+    application --> domain
+    infrastructure --> application
+    infrastructure --> presentation
+    infrastructure --> domain
+    domain --> commonDomain
+
+    %% forbidden: Application -> Infrastructure/Presentation, Presentation -> Infrastructure,
+    %% Domain -> anything but Common.Domain

@@ -1,0 +1,17 @@
+%% Orchestrated multi-module workflow (Phase 2): CancelEventSaga (Events.Presentation).
+%% State persisted in Redis. Waits for both Ticketing outcomes via a CompositeEvent before completing.
+stateDiagram-v2
+    [*] --> Cancelling: EventCanceledIntegrationEvent
+    Cancelling --> Cancelling: publish EventCancellationStartedIntegrationEvent
+
+    state Cancelling {
+        [*] --> Waiting
+        Waiting --> PaymentsRefunded: EventPaymentsRefundedIntegrationEvent
+        Waiting --> TicketsArchived: EventTicketsArchivedIntegrationEvent
+        PaymentsRefunded --> BothDone
+        TicketsArchived --> BothDone
+        BothDone --> [*]: CompositeEvent satisfied
+    }
+
+    Cancelling --> Completed: publish EventCancellationCompletedIntegrationEvent
+    Completed --> [*]: Finalize()

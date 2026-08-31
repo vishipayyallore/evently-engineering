@@ -1,0 +1,27 @@
+sequenceDiagram
+%% CQRS request pipeline: every use case returns a Result.
+    participant Client
+    participant Endpoint as Minimal-API Endpoint
+    participant Sender as ISender (MediatR)
+    participant Exc as ExceptionHandling behavior
+    participant Log as RequestLogging behavior
+    participant Val as Validation behavior
+    participant Handler
+    participant Store as Repository + IUnitOfWork / IDbConnectionFactory
+
+    Client->>Endpoint: HTTP request
+    Endpoint->>Sender: Send(command / query)
+    Sender->>Exc: next()
+    Exc->>Log: next()
+    Log->>Val: next()
+    alt validation fails
+        Val-->>Sender: Result.Failure(ValidationError)
+    else valid
+        Val->>Handler: Handle(request)
+        Handler->>Store: load / persist (write = EF, read = Dapper)
+        Store-->>Handler: data / SaveChanges
+        Handler-->>Val: Result<T>
+    end
+    Val-->>Sender: Result<T>
+    Sender-->>Endpoint: Result<T>
+    Endpoint-->>Client: result.Match(Ok, ApiResults.Problem)
