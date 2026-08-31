@@ -1,0 +1,22 @@
+# evently-new-module
+
+Scaffold a brand-new module (bounded context) in the Evently modular monolith
+(`C:\GitHub\evently-learning-tracker`) with the full project set, `DbContext`, schema, outbox/inbox, DI
+entry point, and test projects.
+
+**Canonical, full instructions:** [`.claude/skills/evently-new-module/SKILL.md`](../../../.claude/skills/evently-new-module/SKILL.md)
+
+Architecture-level change — confirm the module's responsibility with the user / `architect`
+agent first. Copy an existing module (`Users` is smallest, `Events` most representative);
+don't invent a structure.
+
+Steps: create the 8 projects under `src/Modules/<NewModule>/` (Domain, Application,
+IntegrationEvents, Infrastructure, Presentation, UnitTests, IntegrationTests,
+ArchitectureTests) and add them to `Evently.sln`; copy + rename the boilerplate
+(`AssemblyReference`, `IUnitOfWork`, `DbContext`, `Schemas`, outbox/inbox jobs + idempotent
+decorators, `<NewModule>Module` DI entry point, `Permissions`, `Tags`); wire into
+`Program.cs` (application assembly, `ConfigureConsumers`, `AddModuleConfiguration`,
+`Add<NewModule>Module`) and add `modules.<newmodule>.json`; add the `Evently.Api` project
+reference; create the initial `Create_Database` migration; copy the architecture tests and
+add the module to `test/Evently.ArchitectureTests/Layers/ModuleTests.cs`. Validate with
+`dotnet build Evently.sln` && `dotnet test Evently.sln`.
