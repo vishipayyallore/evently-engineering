@@ -1,0 +1,52 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#EAF1FB"
+    primaryBorderColor: "#B7CDE8"
+    primaryTextColor: "#33475B"
+    lineColor: "#9FB8D6"
+    secondaryColor: "#EDE7F6"
+    secondaryBorderColor: "#C6BCE0"
+    tertiaryColor: "#E8F5E9"
+    tertiaryBorderColor: "#BBD9BE"
+    clusterBkg: "#F5F8FD"
+    clusterBorder: "#CBD9EC"
+    noteBkgColor: "#FFF8E1"
+    noteBorderColor: "#EAD9A0"
+    messageTextColor: "#5B6B7B"
+    fontFamily: "Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+---
+%% Evently system shape (Phase 2 target): one deployable hosting four isolated modules.
+%% In Phase 1 the same four bounded contexts exist as folders inside a single project.
+flowchart TB
+    client["Client (HTTP / JWT)"]
+
+    subgraph api["Evently.Api — one deployable (composition root: Program.cs)"]
+        direction LR
+        users["Users<br/>registration, roles, permissions"]
+        events["Events<br/>events, categories, ticket types"]
+        ticketing["Ticketing<br/>customers, carts, orders, payments, tickets"]
+        attendance["Attendance<br/>attendees, check-in, statistics"]
+    end
+
+    subgraph infra["Infrastructure"]
+        direction LR
+        pg[("PostgreSQL<br/>schema per module")]
+        redis[("Redis<br/>carts, saga state, cache")]
+        keycloak["Keycloak<br/>identity / OIDC"]
+        seq["Seq<br/>logs"]
+        jaeger["Jaeger<br/>traces"]
+    end
+
+    client --> api
+    users -. "IntegrationEvents only" .- events
+    events -. "IntegrationEvents only" .- ticketing
+    ticketing -. "IntegrationEvents only" .- attendance
+    events -. "IntegrationEvents only" .- attendance
+
+    api --> pg
+    api --> redis
+    api --> keycloak
+    api --> seq
+    api --> jaeger

@@ -1,0 +1,93 @@
+name: Guidance Parity (.claude ↔ .github)
+
+# The .claude/ tree is canonical (CLAUDE.md). The .github/ tree mirrors it for
+# GitHub Copilot in Copilot's own format (*.agent.md, *.instructions.md,
+# copilot-instructions.md), so the copies are NOT byte-identical. This workflow
+# checks that every canonical skill and agent has a Copilot counterpart (and
+# vice versa) — it does not diff their contents.
+
+on:
+  push:
+    paths:
+      - '.claude/skills/**'
+      - '.claude/agents/**'
+      - '.claude/rules/**'
+      - '.github/skills/**'
+      - '.github/agents/**'
+      - '.github/instructions/**'
+      - '.github/copilot-instructions.md'
+      - '.github/workflows/ci-skills-parity.yml'
+  pull_request:
+    paths:
+      - '.claude/skills/**'
+      - '.claude/agents/**'
+      - '.claude/rules/**'
+      - '.github/skills/**'
+      - '.github/agents/**'
+      - '.github/instructions/**'
+      - '.github/copilot-instructions.md'
+      - '.github/workflows/ci-skills-parity.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  guidance-parity:
+    name: Verify .claude guidance is mirrored under .github
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check parity
+        run: |
+          set -uo pipefail
+          exit_code=0
+          fail() { echo "::error::$1"; exit_code=1; }
+
+          # --- Skills: .claude/skills/<name>/SKILL.md <-> .github/skills/<name>/SKILL.md
+          for f in $(find .claude/skills -name 'SKILL.md' 2>/dev/null); do
+            name="$(basename "$(dirname "$f")")"
+            counterpart=".github/skills/$name/SKILL.md"
+            if [ ! -s "$counterpart" ]; then
+              fail "Skill '$name' has no Copilot mirror: expected $counterpart"
+            fi
+          done
+          for f in $(find .github/skills -name 'SKILL.md' 2>/dev/null); do
+            name="$(basename "$(dirname "$f")")"
+            canonical=".claude/skills/$name/SKILL.md"
+            if [ ! -s "$canonical" ]; then
+              fail "Copilot skill '$name' has no canonical source: expected $canonical"
+            fi
+          done
+
+          # --- Agents: .claude/agents/<name>.md <-> .github/agents/<name>.agent.md
+          for f in $(find .claude/agents -maxdepth 1 -name '*.md' 2>/dev/null); do
+            name="$(basename "$f" .md)"
+            counterpart=".github/agents/$name.agent.md"
+            if [ ! -s "$counterpart" ]; then
+              fail "Agent '$name' has no Copilot mirror: expected $counterpart"
+            fi
+          done
+          for f in $(find .github/agents -maxdepth 1 -name '*.agent.md' 2>/dev/null); do
+            name="$(basename "$f" .agent.md)"
+            canonical=".claude/agents/$name.md"
+            if [ ! -s "$canonical" ]; then
+              fail "Copilot agent '$name' has no canonical source: expected $canonical"
+            fi
+          done
+
+          # --- Rules: if .claude/rules has content, Copilot instructions must exist
+          if [ -n "$(find .claude/rules -name '*.md' 2>/dev/null)" ]; then
+            [ -s ".github/copilot-instructions.md" ] || \
+              fail "Copilot instructions missing: .github/copilot-instructions.md"
+            [ -n "$(find .github/instructions -name '*.instructions.md' 2>/dev/null)" ] || \
+              fail "No .github/instructions/*.instructions.md mirroring .claude/rules/"
+          fi
+
+          if [ "$exit_code" -eq 0 ]; then
+            echo "Guidance parity OK: every .claude skill/agent has a .github counterpart."
+          fi
+          exit $exit_code

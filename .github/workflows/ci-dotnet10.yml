@@ -1,0 +1,125 @@
+name: .NET 10 Build & Test
+
+# Builds and tests the Evently modular monolith on .NET 10.
+# The solution is greenfield: until Evently.slnx (or Evently.sln) is scaffolded
+# this workflow reports a clean "nothing to build yet" and exits successfully.
+# Once the solution exists the build (warnings-as-errors) and the full test
+# suite — unit, architecture (NetArchTest), and integration — run on every push
+# and pull request.
+
+on:
+  push:
+    paths:
+      - '**.cs'
+      - '**.csproj'
+      - '**.sln'
+      - '**.slnx'
+      - '**.props'
+      - '**.targets'
+      - 'global.json'
+      - 'nuget.config'
+      - 'src/**'
+      - 'tests/**'
+      - '.github/workflows/ci-dotnet10.yml'
+  pull_request:
+    paths:
+      - '**.cs'
+      - '**.csproj'
+      - '**.sln'
+      - '**.slnx'
+      - '**.props'
+      - '**.targets'
+      - 'global.json'
+      - 'nuget.config'
+      - 'src/**'
+      - 'tests/**'
+      - '.github/workflows/ci-dotnet10.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-dotnet10-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test:
+    name: Build & test (Evently solution)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Detect solution
+        id: sln
+        run: |
+          set -euo pipefail
+          if [ -f Evently.slnx ]; then
+            path="Evently.slnx"
+          elif [ -f Evently.sln ]; then
+            path="Evently.sln"
+          else
+            path=""
+          fi
+          if [ -n "$path" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+            echo "path=$path" >> "$GITHUB_OUTPUT"
+            echo "Solution found: $path — building and testing."
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No Evently.slnx / Evently.sln yet (greenfield) — skipping build/test."
+          fi
+
+      - name: Setup .NET 10
+        if: steps.sln.outputs.found == 'true'
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        if: steps.sln.outputs.found == 'true'
+        run: dotnet restore "${{ steps.sln.outputs.path }}"
+
+      - name: Build (warnings as errors)
+        if: steps.sln.outputs.found == 'true'
+        run: >
+          dotnet build "${{ steps.sln.outputs.path }}"
+          --configuration Release
+          --no-restore
+          -p:TreatWarningsAsErrors=true
+
+      - name: Test (unit + architecture + integration)
+        if: steps.sln.outputs.found == 'true'
+        run: >
+          dotnet test "${{ steps.sln.outputs.path }}"
+          --configuration Release
+          --no-build
+          --logger "trx;LogFileName=test-results.trx"
+          --logger "console;verbosity=normal"
+          --results-directory ${{ github.workspace }}/TestResults
+
+      - name: Upload test results
+        if: always() && steps.sln.outputs.found == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-test-results
+          path: ${{ github.workspace }}/TestResults/
+          retention-days: 7
+
+      - name: Publish summary
+        if: always()
+        run: |
+          {
+            echo "## .NET 10 CI summary"
+            echo ""
+            echo "- Ref: \`${GITHUB_REF}\`"
+            if [ "${{ steps.sln.outputs.found }}" = "true" ]; then
+              echo "- Solution: \`${{ steps.sln.outputs.path }}\`"
+              echo "- Job status: \`${{ job.status }}\`"
+              echo "- Artifact: \`dotnet-test-results\`"
+            else
+              echo "- No \`Evently.slnx\` / \`Evently.sln\` yet — build/test skipped (scaffold pending)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"

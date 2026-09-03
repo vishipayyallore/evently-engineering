@@ -9,6 +9,11 @@ Work in this repo. Rules R1, R7 in
 [`.claude/rules/evently-engineering-rules.md`](../../rules/evently-engineering-rules.md).
 See `docs/architecture/evently-deep-dive.md` §6 for the full cross-module messaging design.
 
+> **Build phase.** This whole skill is **[Phase 2]** (cross-module messaging). While we're
+> still a monolith (Phase 1), a cross-module effect is a direct in-process call — do **not**
+> wire the outbox/integration-event path until we begin modularizing. Numbered steps below
+> start at 1, never 0.
+
 ## Not this skill
 
 - **The producing or consuming use case doesn't exist yet** → build it first with

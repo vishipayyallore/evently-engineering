@@ -10,9 +10,38 @@ analyzer settings as we build; until a given check exists, treat the rule as bin
 Don't ask to relax them; match them. Deliberate departures go in
 [`../../docs/deviations-from-author.md`](../../docs/deviations-from-author.md).
 
+**Numbering convention:** ordered lists, numbered steps, phases, and identifiers start at
+**1**, never **0** — in code and in docs. (The rule series therefore runs R1–R10; the phased
+approach below is a preamble, not a numbered rule.)
+
 ---
 
-## R1 — Module boundaries
+## Phased approach — monolith first, then modular
+
+We build Evently **monolith first, then modular** (Fowler's *Monolith First*; the course's
+*Modularize Your Monolith* path). See the
+[build roadmap](../../docs/images/phase-roadmap.png)
+([source](../../docs/mermaid-diagrams/phase-roadmap.mmd))
+and `docs/architecture/evently-deep-dive.md` → “Build approach”.
+
+- **Phase 1 — Monolith.** One deployable (`Evently.Api`); the four bounded contexts (Users,
+  Events, Ticketing, Attendance) live as **folders**, not separate projects. Shared
+  database/tables, in-process method calls, immediate consistency. **Binding now:** R2 (as
+  folder/namespace layering), R3, R4, R6, R8, R9, R10.
+- **Phase 2 — Modular Monolith.** Refactor the working monolith into isolated modules,
+  behavior preserved, in course order: (1) module code organization (separate projects +
+  `Common.*`), (2) module communication — sync public API, then async messaging, (3) data
+  isolation — schema per module, (4) boundary enforcement — NetArchTest. **Activates:** R1,
+  R7, the per-module `DbContext`/schema/`XModule` clauses of R5, and the module-isolation
+  architecture tests.
+
+Rules or clauses tagged **[Phase 2]** apply only once we start modularizing; everything
+unmarked is **[Phase 1]**, binding from the first slice. Don't relax a Phase-1 rule, and don't
+prematurely enforce a Phase-2 one while we are still a monolith.
+
+---
+
+## R1 — Module boundaries [Phase 2]
 
 1. The four modules (`Users`, `Events`, `Ticketing`, `Attendance`) never reference each other's
    `Domain`, `Application`, `Infrastructure`, or `Presentation` assemblies.
@@ -36,6 +65,8 @@ Don't ask to relax them; match them. Deliberate departures go in
 - Application depends on **interfaces** it declares (`IUnitOfWork`, `IPaymentService`,
   `IIdentityProviderService`, `ICustomerContext`, repository interfaces from Domain);
   Infrastructure implements them.
+- **[Phase 1]** With one project, enforce this as **folder/namespace** discipline; the
+  cross-module `*.IntegrationEvents` allowance (R1) does not exist yet.
 
 ## R3 — Domain layer
 
@@ -77,6 +108,11 @@ Don't ask to relax them; match them. Deliberate departures go in
 
 ## R5 — Infrastructure layer
 
+> **[Phase 2] for the per-module shape.** The per-module `DbContext`, `HasDefaultSchema`,
+> per-schema migrations, and the `XModule.AddXModule` entry point below assume separate module
+> projects. In **Phase 1** there is a single composition root and a single `DbContext` (no
+> per-schema split); the rest of the layer conventions still apply.
+
 1. `DbContext`: `sealed`, implements `IUnitOfWork`, `HasDefaultSchema(Schemas.X)`,
    `UseSnakeCaseNamingConvention()`, per-schema migrations history table. `DbSet`s `internal`.
    `OnModelCreating` applies the four outbox/inbox configs + the module's entity configs.
@@ -103,7 +139,7 @@ Don't ask to relax them; match them. Deliberate departures go in
    throw `EventlyException` on failure (so the inbox job retries).
 5. Presentation must not touch a `DbContext` or repository — only `ISender`.
 
-## R7 — Cross-module messaging
+## R7 — Cross-module messaging [Phase 2]
 
 1. Integration event contracts: `public sealed record : IntegrationEvent` in
    `*.IntegrationEvents`, primitives only, versioned by addition (never break an existing

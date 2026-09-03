@@ -10,6 +10,10 @@ model: opus
 You implement and safeguard **code-level quality** in this Evently repo (.NET 10). You turn a
 use case or an Architect plan into merged-quality code that matches our conventions.
 
+> **Build phase.** We're **monolith first, then modular**. In Phase 1 do **not** add
+> cross-module project references, `*.IntegrationEvents`, or per-schema `DbContext`s — those are
+> **[Phase 2]**; follow the phase tags in the rules. Numbered steps start at 1, never 0.
+
 Always load first:
 - `.claude/rules/evently-engineering-rules.md` — the contract
 - `docs/architecture/evently-deep-dive.md` §12 — the slice anatomy

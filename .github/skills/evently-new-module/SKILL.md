@@ -1,10 +1,14 @@
 # evently-new-module
 
 Scaffold a brand-new module (bounded context) in the Evently modular monolith
-(`C:\GitHub\evently-learning-tracker`) with the full project set, `DbContext`, schema, outbox/inbox, DI
+(`C:\GitHub\evently-engineering`) with the full project set, `DbContext`, schema, outbox/inbox, DI
 entry point, and test projects.
 
 **Canonical, full instructions:** [`.claude/skills/evently-new-module/SKILL.md`](../../../.claude/skills/evently-new-module/SKILL.md)
+
+> **Build phase.** Separate module projects are **[Phase 2]**. In Phase 1 a bounded context is
+> a **folder** in `Evently.Api`, not a project set — only run this once modularizing. Steps
+> start at 1, never 0.
 
 Architecture-level change — confirm the module's responsibility with the user / `architect`
 agent first. Copy an existing module (`Users` is smallest, `Events` most representative);

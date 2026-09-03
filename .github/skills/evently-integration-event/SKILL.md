@@ -1,9 +1,12 @@
 # evently-integration-event
 
-Wire cross-module communication in Evently (`C:\GitHub\evently-learning-tracker`): publish an integration
+Wire cross-module communication in Evently (`C:\GitHub\evently-engineering`): publish an integration
 event from one module and consume it in another via the outbox/inbox.
 
 **Canonical, full instructions:** [`.claude/skills/evently-integration-event/SKILL.md`](../../../.claude/skills/evently-integration-event/SKILL.md)
+
+> **Build phase.** This whole skill is **[Phase 2]**. While we're a monolith (Phase 1), a
+> cross-module effect is a direct in-process call — don't wire this yet. Steps start at 1, never 0.
 
 Flow: `aggregate.Raise(XDomainEvent)` → outbox → `XDomainEventHandler` (Application) →
 `IEventBus.PublishAsync(XIntegrationEvent)` → MassTransit (in-memory) →

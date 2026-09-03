@@ -9,6 +9,8 @@ Keep it short: what changed, the course's approach vs ours, and why.
 | Date | Area | Course approach | Our approach | Why |
 |---|---|---|---|---|
 | 2026-08-30 | Target framework | .NET 8 | .NET 10 | We build on the current .NET; the architecture is framework-agnostic. |
+| 2026-08-31 | Build approach | Modular monolith scaffolded up front | **Monolith first, then modular** — Phase 1 a single-project monolith (contexts as folders, CQRS + `Result`), Phase 2 refactor into isolated modules (code org → communication → schema isolation → NetArchTest) | *Monolith First* (Fowler) + the course's *Modularize Your Monolith* bonus path; simpler to code along and to get boundaries right by evolving them. Module-isolation rules (R1, R7, per-schema R5) are tagged **[Phase 2]**. |
+| 2026-08-31 | Solution file format | classic `.sln` | classic `.sln` (forced via `dotnet new sln --format sln`) | .NET 10's `dotnet new sln` defaults to the newer `.slnx`; we keep `.sln` so the documented `dotnet build Evently.sln` commands and tooling work unchanged. |
 
 ## Notes / candidates to revisit
 

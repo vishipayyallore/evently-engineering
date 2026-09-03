@@ -1,0 +1,46 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#EAF1FB"
+    primaryBorderColor: "#B7CDE8"
+    primaryTextColor: "#33475B"
+    lineColor: "#9FB8D6"
+    secondaryColor: "#EDE7F6"
+    secondaryBorderColor: "#C6BCE0"
+    tertiaryColor: "#E8F5E9"
+    tertiaryBorderColor: "#BBD9BE"
+    clusterBkg: "#F5F8FD"
+    clusterBorder: "#CBD9EC"
+    noteBkgColor: "#FFF8E1"
+    noteBorderColor: "#EAD9A0"
+    messageTextColor: "#5B6B7B"
+    fontFamily: "Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+---
+sequenceDiagram
+%% CQRS request pipeline: every use case returns a Result.
+    participant Client
+    participant Endpoint as Minimal-API Endpoint
+    participant Sender as ISender (MediatR)
+    participant Exc as ExceptionHandling behavior
+    participant Log as RequestLogging behavior
+    participant Val as Validation behavior
+    participant Handler
+    participant Store as Repository + IUnitOfWork / IDbConnectionFactory
+
+    Client->>Endpoint: HTTP request
+    Endpoint->>Sender: Send(command / query)
+    Sender->>Exc: next()
+    Exc->>Log: next()
+    Log->>Val: next()
+    alt validation fails
+        Val-->>Sender: Result.Failure(ValidationError)
+    else valid
+        Val->>Handler: Handle(request)
+        Handler->>Store: load / persist (write = EF, read = Dapper)
+        Store-->>Handler: data / SaveChanges
+        Handler-->>Val: Result<T>
+    end
+    Val-->>Sender: Result<T>
+    Sender-->>Endpoint: Result<T>
+    Endpoint-->>Client: result.Match(Ok, ApiResults.Problem)
