@@ -3,7 +3,7 @@
 Use this guide to write focused GitHub Copilot prompts for Evently, the .NET 10 implementation
 of the Modular Monolith Architecture course.
 
-## S.M.A.R.T.
+## SMART Framework
 
 ```text
 S - Specific role: architect, principal engineer, reviewer, or documentation editor.
