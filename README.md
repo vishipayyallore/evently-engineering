@@ -12,7 +12,7 @@
 working through the *Modular Monolith Architecture* course. This repository is the
 implementation and the **single source of truth**. Target framework: **.NET 10**.
 
-> Status: greenfield. `src/` and `tests/` are empty; the first tasks scaffold the solution.
+> Status: greenfield. `src/` and `test/` are empty; the first tasks scaffold the solution.
 
 ## Start here
 

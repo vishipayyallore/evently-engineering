@@ -4,7 +4,7 @@
 
 This repository is the Evently implementation and the single source of truth. We build it
 here, on **.NET 10**, working through the *Modular Monolith Architecture* course. It is
-currently greenfield — `src/` and `tests/` are empty; early tasks scaffold the solution.
+currently greenfield — `src/` and `test/` are empty; early tasks scaffold the solution.
 
 `AGENTS.md` is the authoritative workspace guide, including the decisions still open. A
 read-only reference implementation may be configured as an extra directory in

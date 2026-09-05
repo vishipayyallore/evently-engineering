@@ -47,6 +47,10 @@ existing sibling use cases under `*.Application/<Aggregate>/` — copy the close
 | new errors | `*.Domain/<Aggregate>/<Aggregate>Errors.cs` | `public static readonly Error <Name> = Error.Problem("<Agg>.<Name>", "...");` |
 | `<UseCase>.cs` endpoint | `*.Presentation/<Aggregate>/` | `internal sealed class <UseCase> : IEndpoint` (see §5) |
 
+Pick the `ErrorType` that fits each failure (R3.5) — `Error.Validation` / `Error.NotFound` /
+`Error.Conflict` / `Error.Failure`, not `Error.Problem` for everything; it drives the HTTP
+status `ApiResults.Problem` returns.
+
 Handler body pattern:
 ```csharp
 public async Task<Result<Guid>> Handle(<UseCase>Command request, CancellationToken cancellationToken)

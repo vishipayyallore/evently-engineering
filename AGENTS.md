@@ -4,7 +4,7 @@ This repository is where we **build Evently** while working through the *Modular
 Architecture* material. It is the implementation and the **single source of truth** — all
 code, tests, docs, and progress notes live here. Target framework: **.NET 10**.
 
-Right now it is greenfield: `src/` and `tests/` hold only `.gitkeep`. Early tasks scaffold
+Right now it is greenfield: `src/` and `test/` hold only `.gitkeep`. Early tasks scaffold
 the solution.
 
 ## How we work

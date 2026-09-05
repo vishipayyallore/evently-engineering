@@ -15,7 +15,8 @@ Quick shape (see canonical file for templates and validation steps):
    (`public sealed record`), `…CommandHandler`/`QueryHandler` (`internal sealed`),
    `…CommandValidator` (`internal sealed`, structural only).
 3. Put invariants + domain events on the aggregate (`static Result<T> Create`, methods that
-   `Raise(...)`). Errors go in `<Aggregate>Errors.cs`.
+   `Raise(...)`). Errors go in `<Aggregate>Errors.cs`, each with the `ErrorType` that fits
+   (`Validation`/`NotFound`/`Conflict`/`Failure`, not `Problem` for everything — R3.5).
 4. Endpoint: `internal sealed class <UseCase> : IEndpoint`, `result.Match(Results.Ok,
    ApiResults.Problem)`, `.RequireAuthorization(Permissions.X)`, `.WithTags(Tags.X)`.
 5. Tests: unit for aggregate behavior, integration through `ISender`.
