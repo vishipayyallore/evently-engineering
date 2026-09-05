@@ -1,10 +1,12 @@
 # Evently
 
-[![Architecture](https://img.shields.io/badge/architecture-modular%20monolith-4B0082?style=for-the-badge)](README.md)
-[![Domain](https://img.shields.io/badge/domain-driven%20design-00C853?style=for-the-badge)](README.md)
-[![Platform](https://img.shields.io/badge/platform-.NET%2010-512BD4?style=for-the-badge)](README.md)
-[![Events](https://img.shields.io/badge/events-async%20integration-FF6D00?style=for-the-badge)](README.md)
-[![Status](https://img.shields.io/badge/status-in%20progress-F9A825?style=for-the-badge)](README.md)
+[![Architecture](https://img.shields.io/badge/architecture-modular%20monolith-4B0082?style=flat)](README.md)
+[![Domain](https://img.shields.io/badge/domain-driven%20design-00C853?style=flat)](README.md)
+[![Platform](https://img.shields.io/badge/platform-.NET%2010-512BD4?style=flat)](README.md)
+[![Events](https://img.shields.io/badge/events-async%20integration-FF6D00?style=flat)](README.md)
+[![CQRS](https://img.shields.io/badge/pattern-CQRS-1565C0?style=flat)](README.md)
+[![Database](https://img.shields.io/badge/database-PostgreSQL-336791?style=flat)](README.md)
+[![Status](https://img.shields.io/badge/status-in%20progress-F9A825?style=flat)](README.md)
 
 **Evently** — an event ticketing platform built as a modular monolith, developed while
 working through the *Modular Monolith Architecture* course. This repository is the
