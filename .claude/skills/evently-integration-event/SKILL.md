@@ -106,8 +106,8 @@ ProcessOutboxJob (Quartz)                            → IdempotentIntegrationEv
 
 ## Done when
 
-- [ ] Contract is a `sealed record : IntegrationEvent` in the producer's `*.IntegrationEvents`,
-      primitives only.
+- [ ] Contract is a `public sealed class : IntegrationEvent` in the producer's
+      `*.IntegrationEvents`, primitives only.
 - [ ] Published only from a domain-event handler via `IEventBus.PublishAsync` — never from a
       command handler.
 - [ ] Consumer references **only** the producer's `*.IntegrationEvents` project (R1).

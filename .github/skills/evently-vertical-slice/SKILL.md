@@ -14,8 +14,9 @@ Quick shape (see canonical file for templates and validation steps):
 2. Create the slice folder `*.Application/<Aggregate>/<UseCase>/` with `…Command`/`…Query`
    (`public sealed record`), `…CommandHandler`/`QueryHandler` (`internal sealed`),
    `…CommandValidator` (`internal sealed`, structural only).
-3. Put invariants + domain events on the aggregate (`static Result<T> Create`, methods that
-   `Raise(...)`). Errors go in `<Aggregate>Errors.cs`, each with the `ErrorType` that fits
+3. Put invariants + domain events on the aggregate (`static` factory — `Result<T>` if creation
+   can fail, else the entity; state methods that `Raise(...)`). Errors go in
+   `<Aggregate>Errors.cs`, each with the `ErrorType` that fits
    (`Validation`/`NotFound`/`Conflict`/`Failure`, not `Problem` for everything — R3.5).
 4. Endpoint: `internal sealed class <UseCase> : IEndpoint`, `result.Match(Results.Ok,
    ApiResults.Problem)`, `.RequireAuthorization(Permissions.X)`, `.WithTags(Tags.X)`.

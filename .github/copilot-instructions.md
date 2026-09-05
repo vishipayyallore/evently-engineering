@@ -42,8 +42,9 @@ Hard rules (to be enforced by NetArchTest + `TreatWarningsAsErrors`):
   (no EF).
 - Every use case returns `Result` / `Result<T>`; business-rule failures are typed `Error`s,
   never exceptions.
-- Domain aggregates: `sealed`, private constructors only, created via `static Result<T> Create`,
-  mutated via methods that raise domain events.
+- Domain aggregates: `sealed`, private constructors only, created via a `static` factory
+  (`Result<T>` when creation can fail, else the entity), mutated via methods that raise domain
+  events.
 - Default every new type to `internal` + `sealed`. Handlers/validators/event handlers follow
   strict naming (`*CommandHandler`, `*QueryHandler`, `*Validator`, `*DomainEventHandler`,
   `*IntegrationEventHandler`).
