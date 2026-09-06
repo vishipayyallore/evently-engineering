@@ -40,10 +40,13 @@ flowchart TB
     end
 
     client --> api
-    users -. "IntegrationEvents only" .- events
+    %% Integration-event edges = actual *.IntegrationEvents references in the reference impl:
+    %% Events<->Ticketing, Users->Ticketing, Users->Attendance, Events->Attendance, Ticketing->Attendance.
     events -. "IntegrationEvents only" .- ticketing
-    ticketing -. "IntegrationEvents only" .- attendance
+    users -. "IntegrationEvents only" .- ticketing
+    users -. "IntegrationEvents only" .- attendance
     events -. "IntegrationEvents only" .- attendance
+    ticketing -. "IntegrationEvents only" .- attendance
 
     api --> pg
     api --> redis
