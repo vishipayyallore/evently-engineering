@@ -54,8 +54,11 @@ One folder per use case: `Application/<Aggregate>/<UseCase>/`. `…Command`/`…
 `Result`/`Result<T>`. Validators = `internal sealed : AbstractValidator<T>`, structural checks
 only. Write path: repository + one `unitOfWork.SaveChangesAsync`. Read path: `IDbConnectionFactory`
 + Dapper + hand-written SQL, columns aliased with `nameof(TResponse.Prop)`; no EF. Domain-event
-handlers = `internal sealed : DomainEventHandler<T>`, name ends `DomainEventHandler`; either
-update a projection or publish an integration event, not both. Never return a Domain entity.
+handlers = `internal sealed : DomainEventHandler<T>`, name ends `DomainEventHandler` (react
+handlers in `<Aggregate>/<UseCase>/`, projection handlers under `<ReadModel>/Projections/`);
+each does exactly one of — update a projection, publish an integration event, or dispatch one
+in-module `ISender.Send(command)`. Response DTOs = `public sealed record`; never return a
+Domain entity.
 
 ## R5 — Infrastructure
 **[Phase 2] for the per-module shape** (per-module `DbContext`, `HasDefaultSchema`, `XModule`);

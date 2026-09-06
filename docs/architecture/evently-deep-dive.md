@@ -238,9 +238,12 @@ Handler saves aggregate
       → writes processed_on_utc / error back
 ```
 
-Domain-event handlers (`Application/<Aggregate>/<UseCase>/<Event>DomainEventHandler.cs`, `internal sealed`) do one of:
-- **Update a projection / read model** (e.g. Attendance `EventStatistics`).
+Domain-event handlers (`internal sealed`) — a react/publish handler in the triggering
+`Application/<Aggregate>/<UseCase>/` folder, a projection handler grouped under
+`Application/<ReadModel>/Projections/` — do **one** of:
+- **Update a projection / read model** via Dapper (e.g. Attendance `EventStatistics/Projections/*`).
 - **Publish an integration event** via `IEventBus` (e.g. `EventPublishedDomainEventHandler` → builds `EventPublishedIntegrationEvent` from a `GetEventQuery` and publishes it).
+- **Dispatch one in-module follow-up command** via `ISender` (e.g. Ticketing `OrderCreatedDomainEvent` → `CreateTicketBatchCommand`) — in-module choreography, not cross-module.
 
 ### 6b. Integration events (module → module)
 
@@ -345,7 +348,7 @@ Feature: "Create Event" (a command). Files, in order of the dependency flow:
 | 4 | `Application/Events/CreateEvent/CreateEventCommand.cs` — `sealed record CreateEventCommand(...) : ICommand<Guid>` | Application | sealed, `Command` suffix |
 | 5 | `…/CreateEventCommandValidator.cs` — `internal sealed : AbstractValidator<CreateEventCommand>` | Application | internal, sealed, `Validator` suffix |
 | 6 | `…/CreateEventCommandHandler.cs` — `internal sealed : ICommandHandler<CreateEventCommand, Guid>` | Application | internal, sealed; repo + `IUnitOfWork`; returns `Result<Guid>` |
-| 7 | (optional) `…/<Event>DomainEventHandler.cs` — projection or `IEventBus.PublishAsync` | Application | internal, sealed, `DomainEventHandler` suffix |
+| 7 | (optional) `…/<Event>DomainEventHandler.cs` — projection, `IEventBus.PublishAsync`, or one in-module `ISender.Send` | Application | internal, sealed, `DomainEventHandler` suffix |
 | 8 | `Presentation/Events/CreateEvent.cs` — `internal sealed : IEndpoint`, `MapPost("events", …)`, `result.Match(Results.Ok, ApiResults.Problem)`, `.RequireAuthorization(Permissions.ModifyEvents)`, `.WithTags(Tags.Events)` | Presentation | internal, sealed; nested `Request` type |
 | 9 | If other modules care: add `<Event>IntegrationEvent.cs` to `*.IntegrationEvents`; publish from the domain-event handler | IntegrationEvents | `public sealed class …: IntegrationEvent`, ctor chains `: base(id, occurredOnUtc)`, `{ get; init; }` props, primitives only |
 | 10 | Tests: `UnitTests/Events/EventTests.cs` (aggregate), `IntegrationTests/Events/CreateEventTests.cs` (`ISender`) | tests | naming per §10 (unit `Create_Should…_When…`, integration `Should_…_When…`) |

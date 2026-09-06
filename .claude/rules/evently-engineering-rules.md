@@ -103,9 +103,14 @@ prematurely enforce a Phase-2 one while we are still a monolith.
    **No EF, no `DbContext`, no repository on the read side.** Alias columns with
    `nameof(TResponse.Prop)`.
 7. Domain-event handlers: `internal sealed`, inherit `DomainEventHandler<T>`, name ends
-   `DomainEventHandler`, in the relevant `Application/<Aggregate>/<UseCase>/` folder. They
-   update a projection **or** publish an integration event via `IEventBus` — not both.
-8. Response DTOs: `<X>Response.cs` records in the use-case folder. Never return a Domain entity.
+   `DomainEventHandler`. A react/publish handler sits in the triggering
+   `Application/<Aggregate>/<UseCase>/` folder; projection handlers are grouped under
+   `Application/<ReadModel>/Projections/`. Each handler does exactly **one** thing: update a
+   projection (Dapper), publish an integration event via `IEventBus`, or dispatch one
+   in-module follow-up `ISender.Send(command)` — never a mix. It may first `ISender.Send` a
+   query to enrich the payload.
+8. Response DTOs: `<X>Response.cs` `public sealed record`s in the use-case folder. Never
+   return a Domain entity.
 
 ## R5 — Infrastructure layer
 
