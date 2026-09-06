@@ -19,7 +19,7 @@ on:
       - 'global.json'
       - 'nuget.config'
       - 'src/**'
-      - 'tests/**'
+      - 'test/**'
       - '.github/workflows/ci-dotnet10.yml'
   pull_request:
     paths:
@@ -32,7 +32,7 @@ on:
       - 'global.json'
       - 'nuget.config'
       - 'src/**'
-      - 'tests/**'
+      - 'test/**'
       - '.github/workflows/ci-dotnet10.yml'
   workflow_dispatch:
 

@@ -40,10 +40,12 @@ Infrastructure. Infrastructure composes everything in its own module.
 
 ## R3 — Domain
 Aggregates: `sealed : Entity`, private parameterless + only-private constructors, private
-setters. Create via `public static Result<T> Create(...)`. State changes are methods that
-return `Result` and `Raise(...)` a `sealed record …DomainEvent : DomainEvent`. All failures
-are `Error`s from `<Aggregate>Errors.cs` with the right `ErrorType`. No `DateTime.UtcNow`, no
-I/O, no framework types in Domain.
+setters. Create via a `public static` factory — returns `Result<T>` when construction can
+fail, else the entity directly (e.g. `Category.Create`). State changes are methods that return
+`Result` (or `void` when they cannot fail) and `Raise(...)` a
+`public sealed class …DomainEvent : DomainEvent` (primary ctor + `{ get; init; }` props). All
+failures are `Error`s from `<Aggregate>Errors.cs` with the right `ErrorType`. No
+`DateTime.UtcNow`, no I/O, no framework types in Domain.
 
 ## R4 — Application
 One folder per use case: `Application/<Aggregate>/<UseCase>/`. `…Command`/`…Query` =
@@ -72,8 +74,9 @@ name ends `IntegrationEventHandler`, translate to a command via `ISender`, throw
 `EventlyException` on failure. No `DbContext`/repository in Presentation — only `ISender`.
 
 ## R7 — Cross-module messaging [Phase 2]
-Integration events = `public sealed record : IntegrationEvent` in `*.IntegrationEvents`,
-primitives only, additive changes only. Publish only from a domain-event handler via
+Integration events = `public sealed class : IntegrationEvent` in `*.IntegrationEvents`
+(ctor chains `: base(id, occurredOnUtc)`, `{ get; init; }` props), primitives only, additive
+changes only. Publish only from a domain-event handler via
 `IEventBus.PublishAsync`. Handlers must be logically idempotent. Multi-module coordinated
 workflows → a MassTransit saga in the initiating module's Presentation (state in Redis).
 

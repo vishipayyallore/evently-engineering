@@ -100,12 +100,12 @@ Evently.Api (composition root: Program.cs)
 | Project | References | Contains |
 |---|---|---|
 | `*.Domain` | `Common.Domain` only | Aggregates (`Entity`), domain events, `*Errors` static classes, repository **interfaces**, enums/value objects |
-| `*.Application` | `Common.Application`, own `Domain` | Commands, queries, handlers (`internal sealed`), validators, domain-event handlers, response DTOs, abstraction interfaces (`IUnitOfWork`, `ICustomerContext`, `IPaymentService`, `IIdentityProviderService`) |
+| `*.Application` | `Common.Application`, own `Domain`, own `IntegrationEvents` | Commands, queries, handlers (`internal sealed`), validators, domain-event handlers, response DTOs, abstraction interfaces (`IUnitOfWork`, `ICustomerContext`, `IPaymentService`, `IIdentityProviderService`) |
 | `*.Infrastructure` | `Common.Infrastructure`, own `Application` + `Presentation` | `DbContext`, EF `IEntityTypeConfiguration`s, repository **implementations**, `XModule.cs` (DI), outbox/inbox jobs + idempotent decorators, external clients (Keycloak, Stripe-style payment) |
-| `*.Presentation` | `Common.Presentation`, own `Application` | Minimal-API endpoints (`IEndpoint`), integration-event handlers, `Permissions`, `Tags`, sagas |
-| `*.IntegrationEvents` | `Common.Application` | **The only assembly other modules may reference.** Plain event records + models. |
-| `*.UnitTests` | Domain + Application | Domain behavior, handler logic |
-| `*.IntegrationTests` | whole module + API | Testcontainers, real DB, `ISender`-driven |
+| `*.Presentation` | `Common.Presentation`, own `Application`, **other modules' `*.IntegrationEvents`** (consumed events + sagas) | Minimal-API endpoints (`IEndpoint`), integration-event handlers, `Permissions`, `Tags`, sagas |
+| `*.IntegrationEvents` | `Common.Application` | **The only assembly other modules may reference.** Plain event classes (`public sealed : IntegrationEvent`, primitives only) + models. |
+| `*.UnitTests` | own `Domain` only | Aggregate behavior — factory / invariant / state-transition results, `AssertDomainEventWasPublished<T>` |
+| `*.IntegrationTests` | whole module + `Evently.Api` | Testcontainers (Postgres + Redis), real DB, `ISender`-driven |
 | `*.ArchitectureTests` | whole module | NetArchTest rules |
 
 `AssemblyReference.cs` (a `public static Assembly` marker) exists in Application and Presentation so the host and tests can scan those assemblies by type reference instead of string.
@@ -117,7 +117,8 @@ Evently.Api (composition root: Program.cs)
 These are **executable** — they run in CI as xUnit tests using NetArchTest. Treat them as the contract.
 
 ### Layering (per module — `LayerTests`)
-- Domain **must not** depend on Application, Infrastructure, or Presentation.
+- Domain **must not** depend on Application or Infrastructure. (Domain → Presentation is not
+  tested — it is structurally impossible, since Presentation references Application.)
 - Application **must not** depend on Infrastructure or Presentation.
 - Presentation **must not** depend on Infrastructure.
 - (Infrastructure is the composition layer and may see everything in its own module.)
@@ -191,9 +192,10 @@ HTTP endpoint (minimal API)
 
 - `public sealed class Event : Entity` with a **`private Event()`** constructor.
 - All properties `{ get; private set; }`.
-- Creation: `public static Result<Event> Create(...)` — validates invariants, `new Event { … }` via object initializer, `@event.Raise(new EventCreatedDomainEvent(@event.Id))`, returns the entity (implicit conversion to `Result<Event>`).
-- State changes: instance methods (`Publish()`, `Reschedule(...)`, `Cancel(utcNow)`) that check current state, return `Result` on rule violations, mutate, and `Raise(...)` a domain event.
+- Creation: `public static Result<Event> Create(...)` — validates invariants, `new Event { … }` via object initializer, `@event.Raise(new EventCreatedDomainEvent(@event.Id))`, returns the entity (implicit conversion to `Result<Event>`). A factory with **no** failure mode returns the entity directly instead (`Category.Create` → `Category`).
+- State changes: instance methods (`Publish()`, `Cancel(utcNow)`) that check current state, return `Result` on rule violations, mutate, and `Raise(...)` a domain event — **or `void`** when the transition cannot fail (`Reschedule(...)`, `Category.Archive()`).
 - Time is passed **in** (`Cancel(DateTime utcNow)`) or comes from `IDateTimeProvider` in the handler — never `DateTime.UtcNow` inside domain logic that needs testing.
+- Domain events: `public sealed class <X>DomainEvent(<primitives>) : DomainEvent` — primary constructor, `{ get; init; }` properties, ids/primitives only. The base `DomainEvent()` fills `Id` + `OccurredOnUtc`. (Concrete events are **`sealed class`**, not records — same for integration events.)
 - `Entity` keeps `_domainEvents`; `Raise` adds, `DomainEvents` exposes a copy, `ClearDomainEvents` empties (called by the outbox interceptor).
 
 ---
@@ -255,7 +257,11 @@ IEventBus.PublishAsync(integrationEvent)   → MassTransit IBus.Publish
 
 Integration-event handlers live in **`*.Presentation`** (`internal sealed`, `*IntegrationEventHandler`). Example: Attendance's `EventPublishedIntegrationEventHandler` receives `Events.IntegrationEvents.EventPublishedIntegrationEvent` and sends Attendance's own `CreateEventCommand` — so each module keeps its own local copy of the data it needs.
 
-Consumer registration: `XModule.ConfigureConsumers` (a `static Action<IRegistrationConfigurator>`) is passed into `AddInfrastructure` from `Program.cs`.
+Consumer registration: each consuming module's `XModule.ConfigureConsumers` calls
+`registration.AddConsumer<IntegrationEventConsumer<TEvent>>()` for every event it consumes.
+It is a `static void ConfigureConsumers(IRegistrationConfigurator)` (passed to `AddInfrastructure`
+as a method group) — or, when it needs a parameter (the `CancelEventSaga`'s Redis connection),
+a `static` factory returning `Action<IRegistrationConfigurator>`.
 
 ### 6c. Sagas (orchestrated multi-module workflows)
 
@@ -304,11 +310,15 @@ Order matters:
 
 | Layer | Project(s) | Tooling | What's covered |
 |---|---|---|---|
-| Architecture | `*/…ArchitectureTests`, `test/Evently.ArchitectureTests` | NetArchTest + xUnit + FluentAssertions | Layering, module isolation, naming/sealing/visibility/ctor rules (§2) |
-| Unit | `*/…UnitTests` | xUnit, FluentAssertions, Bogus `Faker` | Aggregate invariants, factory results, `AssertDomainEventWasPublished<T>` helper |
-| Integration | `*/…IntegrationTests`, `test/Evently.IntegrationTests` | xUnit collection fixture, **Testcontainers** (Postgres, Redis, Keycloak), `WebApplicationFactory` | Full slice via `ISender`; `BaseIntegrationTest` exposes `Sender` + module `DbContext`; `CleanDatabaseAsync` truncates in FK order; `Poller` for eventual-consistency assertions |
+| Architecture | per-module `…ArchitectureTests`, `test/Evently.ArchitectureTests` | NetArchTest + xUnit + FluentAssertions | Layering, module isolation, naming/sealing/visibility/ctor rules (§2) |
+| Unit | per-module `…UnitTests` (references own `Domain` only) | xUnit, FluentAssertions, Bogus `Faker` | Aggregate behavior — factory / invariant / state-transition results, `AssertDomainEventWasPublished<T>` helper. No handlers. |
+| Integration (per module) | per-module `…IntegrationTests` | xUnit collection fixture, `WebApplicationFactory<Program>`, **Testcontainers (Postgres + Redis)**, `IDateTimeProvider` mocked (NSubstitute) | Full slice via `ISender`. `BaseIntegrationTest` exposes `Sender` + the module `DbContext` + `CleanDatabaseAsync()` (ordered `DELETE`s, FK-safe). **No `Poller`, no Keycloak.** |
+| Integration (cross-module) | `test/Evently.IntegrationTests` | same, **plus a Keycloak Testcontainer** | End-to-end flows spanning modules (e.g. register user → attendee created). `BaseIntegrationTest` exposes `Sender` only; adds **`Poller`** for eventual-consistency assertions. |
 
-Test method naming: `Should_<Outcome>_When<Condition>` (unit + integration); AAA comments (`// Arrange` / `// Act` / `// Assert`).
+Test method naming: integration tests `Should_<Outcome>_When<Condition>`; unit tests are
+method-prefixed — `<Method>_Should<Outcome>_When<Condition>` (e.g.
+`Create_ShouldReturnFailure_WhenEndDatePrecedesStartDate`). AAA comments
+(`// Arrange` / `// Act` / `// Assert`).
 
 ---
 
@@ -330,15 +340,15 @@ Feature: "Create Event" (a command). Files, in order of the dependency flow:
 | # | File | Project | Rules |
 |---|---|---|---|
 | 1 | `Domain/Events/Event.cs` — `static Result<Event> Create(...)` + `Raise(new EventCreatedDomainEvent(Id))` | Domain | sealed, private ctor, invariants return `Result` |
-| 2 | `Domain/Events/EventCreatedDomainEvent.cs` — `sealed record …(Guid EventId) : DomainEvent` | Domain | sealed, `DomainEvent` suffix |
+| 2 | `Domain/Events/EventCreatedDomainEvent.cs` — `public sealed class EventCreatedDomainEvent(Guid eventId) : DomainEvent` (primary ctor, `{ get; init; }` prop) | Domain | sealed, `DomainEvent` suffix |
 | 3 | `Domain/Events/EventErrors.cs` — `static Error StartDateInPast …` | Domain | one place for error definitions |
 | 4 | `Application/Events/CreateEvent/CreateEventCommand.cs` — `sealed record CreateEventCommand(...) : ICommand<Guid>` | Application | sealed, `Command` suffix |
 | 5 | `…/CreateEventCommandValidator.cs` — `internal sealed : AbstractValidator<CreateEventCommand>` | Application | internal, sealed, `Validator` suffix |
 | 6 | `…/CreateEventCommandHandler.cs` — `internal sealed : ICommandHandler<CreateEventCommand, Guid>` | Application | internal, sealed; repo + `IUnitOfWork`; returns `Result<Guid>` |
 | 7 | (optional) `…/<Event>DomainEventHandler.cs` — projection or `IEventBus.PublishAsync` | Application | internal, sealed, `DomainEventHandler` suffix |
 | 8 | `Presentation/Events/CreateEvent.cs` — `internal sealed : IEndpoint`, `MapPost("events", …)`, `result.Match(Results.Ok, ApiResults.Problem)`, `.RequireAuthorization(Permissions.ModifyEvents)`, `.WithTags(Tags.Events)` | Presentation | internal, sealed; nested `Request` type |
-| 9 | If other modules care: add `<Event>IntegrationEvent.cs` to `*.IntegrationEvents`; publish from the domain-event handler | IntegrationEvents | plain record : `IntegrationEvent` |
-| 10 | Tests: `UnitTests/Events/EventTests.cs` (aggregate), `IntegrationTests/Events/CreateEventTests.cs` (`ISender`) | tests | `Should_…_When…` |
+| 9 | If other modules care: add `<Event>IntegrationEvent.cs` to `*.IntegrationEvents`; publish from the domain-event handler | IntegrationEvents | `public sealed class …: IntegrationEvent`, ctor chains `: base(id, occurredOnUtc)`, `{ get; init; }` props, primitives only |
+| 10 | Tests: `UnitTests/Events/EventTests.cs` (aggregate), `IntegrationTests/Events/CreateEventTests.cs` (`ISender`) | tests | naming per §10 (unit `Create_Should…_When…`, integration `Should_…_When…`) |
 
 A **query** slice is smaller: `Application/<Aggregate>/<UseCase>/<UseCase>Query.cs` (`sealed record : IQuery<T>`), `<UseCase>QueryHandler.cs` (`internal sealed`, Dapper via `IDbConnectionFactory`), `<X>Response.cs`, `Presentation/<UseCase>.cs`.
 
@@ -349,11 +359,11 @@ A **query** slice is smaller: `Application/<Aggregate>/<UseCase>/<UseCase>Query.
 | Type | Project | Role |
 |---|---|---|
 | `Entity` | Common.Domain | Base for aggregates; owns domain events |
-| `DomainEvent` / `IDomainEvent` | Common.Domain | In-module event; sealed subclasses |
+| `DomainEvent` / `IDomainEvent` | Common.Domain | In-module event; `sealed class` subclasses (primary ctor, `{ get; init; }`) |
 | `Result` / `Result<T>` / `Error` / `ErrorType` / `ValidationError` | Common.Domain | Railway-oriented flow control |
 | `ICommand` / `ICommand<T>` / `IQuery<T>` + handlers | Common.Application | CQRS contracts (MediatR) |
 | `IDomainEventHandler<T>` / `DomainEventHandler<T>` | Common.Application | Reacts to domain events (in Application) |
-| `IIntegrationEvent` / `IntegrationEvent` / `IIntegrationEventHandler<T>` | Common.Application | Cross-module contract + reaction (handlers in Presentation) |
+| `IIntegrationEvent` / `IntegrationEvent` / `IIntegrationEventHandler<T>` | Common.Application | Cross-module contract (`sealed class : IntegrationEvent`, in `*.IntegrationEvents`) + reaction (handlers in Presentation) |
 | `IEventBus` | Common.Application (impl in Infrastructure) | Thin wrapper over MassTransit `IBus.Publish` |
 | `IUnitOfWork` | per-module Application | The module `DbContext`, for `SaveChangesAsync` |
 | `IDbConnectionFactory` | Common.Application | Read-side raw connections (Dapper) |

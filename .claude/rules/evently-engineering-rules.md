@@ -72,12 +72,13 @@ prematurely enforce a Phase-2 one while we are still a monolith.
 
 1. Aggregates inherit `Entity`, are `sealed`, have a **`private` parameterless constructor**
    and **only `private` constructors**. All setters are `private`.
-2. Construct via a `public static Result<T> Create(...)` factory that validates invariants and
-   `Raise(...)`s a creation domain event.
+2. Construct via a `public static` factory that validates invariants and `Raise(...)`s a
+   creation domain event. It returns `Result<T>` when construction can fail; when it cannot,
+   it returns the entity directly (e.g. `Category.Create`).
 3. State transitions are instance methods that return `Result` (or `void` when they cannot
    fail), enforce the invariant, mutate, and `Raise(...)` a domain event.
-4. Domain events: `sealed record`, inherit `DomainEvent`, name ends `DomainEvent`, carry
-   primitives/ids only.
+4. Domain events: `public sealed class`, inherit `DomainEvent`, name ends `DomainEvent`,
+   primary constructor + `{ get; init; }` properties, carry primitives/ids only.
 5. Every failure is an `Error` defined as a `static` member or factory in
    `Domain/<Aggregate>/<Aggregate>Errors.cs`. Pick the right `ErrorType`
    (`Validation` / `Problem` / `NotFound` / `Conflict` / `Failure`). Never `throw` for a
@@ -141,9 +142,9 @@ prematurely enforce a Phase-2 one while we are still a monolith.
 
 ## R7 — Cross-module messaging [Phase 2]
 
-1. Integration event contracts: `public sealed record : IntegrationEvent` in
-   `*.IntegrationEvents`, primitives only, versioned by addition (never break an existing
-   contract).
+1. Integration event contracts: `public sealed class : IntegrationEvent` in
+   `*.IntegrationEvents` — constructor chains `: base(id, occurredOnUtc)`, `{ get; init; }`
+   properties, primitives only, versioned by addition (never break an existing contract).
 2. Publish integration events **only** from a domain-event handler via `IEventBus.PublishAsync`
    — never from a command handler directly, so the outbox guarantees delivery.
 3. Consumers are idempotent by construction (the `Idempotent*` decorators + `*_message_consumers`

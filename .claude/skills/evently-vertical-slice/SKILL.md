@@ -43,9 +43,13 @@ existing sibling use cases under `*.Application/<Aggregate>/` — copy the close
 | `<UseCase>CommandValidator.cs` | same folder | `internal sealed class <UseCase>CommandValidator : AbstractValidator<<UseCase>Command>` — structural rules only |
 | `<UseCase>CommandHandler.cs` | same folder | `internal sealed class <UseCase>CommandHandler(<deps>) : ICommandHandler<<UseCase>Command, Guid>` |
 | aggregate method / factory | `*.Domain/<Aggregate>/<Aggregate>.cs` | returns `Result` / `Result<T>`, `Raise(new <X>DomainEvent(...))` |
-| `<X>DomainEvent.cs` | `*.Domain/<Aggregate>/` | `public sealed record <X>DomainEvent(Guid <Agg>Id) : DomainEvent;` |
+| `<X>DomainEvent.cs` | `*.Domain/<Aggregate>/` | `public sealed class <X>DomainEvent(Guid <Agg>Id) : DomainEvent { public Guid <Agg>Id { get; init; } = <agg>Id; }` |
 | new errors | `*.Domain/<Aggregate>/<Aggregate>Errors.cs` | `public static readonly Error <Name> = Error.Problem("<Agg>.<Name>", "...");` |
 | `<UseCase>.cs` endpoint | `*.Presentation/<Aggregate>/` | `internal sealed class <UseCase> : IEndpoint` (see §5) |
+
+Pick the `ErrorType` that fits each failure (R3.5) — `Error.Validation` / `Error.NotFound` /
+`Error.Conflict` / `Error.Failure`, not `Error.Problem` for everything; it drives the HTTP
+status `ApiResults.Problem` returns.
 
 Handler body pattern:
 ```csharp
@@ -63,14 +67,15 @@ public async Task<Result<Guid>> Handle(<UseCase>Command request, CancellationTok
     return entity.Id;
 }
 ```
-For "create" use cases: `<Aggregate>.Create(...)` → `repository.Insert(result.Value)` → `SaveChangesAsync`.
+For "create" use cases: `<Aggregate>.Create(...)` → `repository.Insert(result.Value)` → `SaveChangesAsync`
+(if the factory can't fail it returns the entity directly, not a `Result` — skip the `.IsFailure` check).
 
 ## 4. Query slice — files to create
 
 | File | Location | Template |
 |---|---|---|
 | `<UseCase>Query.cs` | `*.Application/<Aggregate>/<UseCase>/` | `public sealed record <UseCase>Query(Guid Id) : IQuery<<X>Response>;` |
-| `<X>Response.cs` | same folder | `public sealed class <X>Response { ... }` (or record) |
+| `<X>Response.cs` | same folder | `public sealed record <X>Response(...);` (nested collections as `{ get; } = [];` on the record body) |
 | `<UseCase>QueryHandler.cs` | same folder | `internal sealed class <UseCase>QueryHandler(IDbConnectionFactory dbConnectionFactory) : IQueryHandler<<UseCase>Query, <X>Response>` |
 | `<UseCase>.cs` endpoint | `*.Presentation/<Aggregate>/` | see §5 |
 

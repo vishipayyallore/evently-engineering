@@ -13,9 +13,10 @@ Flow: `aggregate.Raise(XDomainEvent)` → outbox → `XDomainEventHandler` (Appl
 `IntegrationEventConsumer<T>` → inbox → `XIntegrationEventHandler` (Presentation) →
 `ISender.Send(SomeCommand)`.
 
-Producer: add `sealed record : IntegrationEvent` to `*.IntegrationEvents` (primitives only,
-additive only); publish from a domain-event handler via `IEventBus` (never from a command
-handler). Consumer: reference the producer's `*.IntegrationEvents` project (the only allowed
+Producer: add `public sealed class : IntegrationEvent` to `*.IntegrationEvents` (ctor chains
+`: base(id, occurredOnUtc)`, `{ get; init; }` props, primitives only, additive only); publish
+from a domain-event handler via `IEventBus` (never from a command handler). Consumer: reference
+the producer's `*.IntegrationEvents` project (the only allowed
 cross-module reference); register `IntegrationEventConsumer<T>` in `XModule.ConfigureConsumers`;
 add `internal sealed class …IntegrationEventHandler : IntegrationEventHandler<T>` in
 `*.Presentation` that sends a command and throws `EventlyException` on failure. The target

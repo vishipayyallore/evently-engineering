@@ -8,7 +8,7 @@ This is where **we build Evently** while working through the *Modular Monolith A
 course. It is the implementation and the **single source of truth** — all code, tests, and
 docs live here. Target framework: **.NET 10**.
 
-Right now it is greenfield: `src/` and `tests/` hold only `.gitkeep`. Early tasks will
+Right now it is greenfield: `src/` and `test/` hold only `.gitkeep`. Early tasks will
 scaffold the solution.
 
 `AGENTS.md` is the authoritative workspace guide — **read it first**. It covers how we work

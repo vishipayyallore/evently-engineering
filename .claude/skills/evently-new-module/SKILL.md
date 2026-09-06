@@ -35,11 +35,11 @@ references):
 | Project | References |
 |---|---|
 | `Evently.Modules.<NewModule>.Domain` | `Common.Domain` |
-| `Evently.Modules.<NewModule>.Application` | `Common.Application`, `.Domain` |
+| `Evently.Modules.<NewModule>.Application` | `Common.Application`, `.Domain`, `.IntegrationEvents` |
 | `Evently.Modules.<NewModule>.IntegrationEvents` | `Common.Application` |
 | `Evently.Modules.<NewModule>.Infrastructure` | `Common.Infrastructure`, `.Application`, `.Presentation` |
-| `Evently.Modules.<NewModule>.Presentation` | `Common.Presentation`, `.Application` |
-| `Evently.Modules.<NewModule>.UnitTests` | `.Domain`, `.Application` + xUnit/FluentAssertions/Bogus |
+| `Evently.Modules.<NewModule>.Presentation` | `Common.Presentation`, `.Application` (add another module's `*.IntegrationEvents` only when wiring a consumer/saga) |
+| `Evently.Modules.<NewModule>.UnitTests` | `.Domain` + xUnit/FluentAssertions/Bogus |
 | `Evently.Modules.<NewModule>.IntegrationTests` | whole module + `Evently.Api` + Testcontainers |
 | `Evently.Modules.<NewModule>.ArchitectureTests` | whole module + NetArchTest |
 
