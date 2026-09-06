@@ -22,3 +22,7 @@ add `internal sealed class …IntegrationEventHandler : IntegrationEventHandler<
 `*.Presentation` that sends a command and throws `EventlyException` on failure. The target
 command must be logically idempotent. Validate with the architecture tests + a consumer
 integration test using `Poller`.
+
+A **saga** (coordinate ≥2 other modules) or a **new consumer→producer direction** is a
+structural decision — ask the `architect` for a ruling + an ADR, and add/adjust the edge in
+`docs/mermaid-diagrams/system-context.mmd`.

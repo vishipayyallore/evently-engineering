@@ -15,8 +15,9 @@ read-only reference implementation may be configured as an extra directory in
 | File | What it is |
 |---|---|
 | `AGENTS.md` | How we work; decisions still open |
-| `docs/architecture/evently-deep-dive.md` | Architecture reference — the design patterns to follow |
-| `docs/deviations-from-author.md` | Running log of deliberate departures from the course |
+| `docs/architecture/evently-deep-dive.md` | Architecture reference (the "what") — patterns to follow, C4 diagram map |
+| `docs/ADRs/` | Architecture Decision Records (the "why") — monolith-first, CQRS, Result, outbox/inbox, … |
+| `docs/deviations-from-author.md` | Course-diff view — departures from the course, each linked to its ADR |
 | `.claude/rules/evently-engineering-rules.md` | R1–R10, the coding contract |
 | `.claude/skills/evently-vertical-slice/SKILL.md` | Add a command/query use case end-to-end |
 | `.claude/skills/evently-integration-event/SKILL.md` | Wire cross-module messaging |
@@ -48,6 +49,15 @@ Hard rules (to be enforced by NetArchTest + `TreatWarningsAsErrors`):
 - Default every new type to `internal` + `sealed`. Handlers/validators/event handlers follow
   strict naming (`*CommandHandler`, `*QueryHandler`, `*Validator`, `*DomainEventHandler`,
   `*IntegrationEventHandler`).
+
+## Decisions & diagrams
+
+The **"why"** behind the rules is in `docs/ADRs/` (one immutable ADR per structural decision;
+see `docs/ADRs/README.md`). A new structural decision — module boundary, `Common.*` addition,
+dependency swap, course departure — needs a **new ADR** (the `architect` role drafts it) and,
+if the system's shape changes, an updated diagram under `docs/mermaid-diagrams/` (C4-levelled;
+regenerate with `pwsh scripts/export-mermaid.ps1`). Routine slices need neither — cite the
+existing ADR instead.
 
 ## Build & validation
 

@@ -8,7 +8,10 @@ description: "Evently engineering rules — apply to all C#/project work in this
 We build Evently here, on **.NET 10**.
 
 Canonical, full version with rationale: `.claude/rules/evently-engineering-rules.md`.
-Architecture reference: `docs/architecture/evently-deep-dive.md`.
+Architecture reference (the "what"): `docs/architecture/evently-deep-dive.md`.
+The "why" behind each rule: the ADRs in `docs/ADRs/` (see `docs/ADRs/README.md`). A new
+structural decision needs a new ADR (`architect` role) + an updated `docs/mermaid-diagrams/`
+source if the system's shape changed; routine work cites the existing ADR.
 Each rule below is meant to be enforced by an architecture test or by
 `TreatWarningsAsErrors` (added as we build).
 
@@ -101,3 +104,5 @@ then the module's tests, then `dotnet test Evently.sln`. Entity-config/`DbSet` c
 EF migration. Never hand-edit `bin/`, `obj/`, `*Designer.cs`, `*ModelSnapshot.cs`. We target
 `net10.0` (the course is on .NET 8 — a logged deviation); use the .NET 10 equivalent when a
 step relies on an .NET 8-specific API and note it in `docs/deviations-from-author.md`.
+A **structural** decision lands with an ADR in `docs/ADRs/` (drafted by the `architect`) and,
+if the system's shape changed, an updated `docs/mermaid-diagrams/` source + regenerated PNG.

@@ -7,8 +7,15 @@ Architecture* course. Full rationale and examples:
 Each rule below is meant to be **enforced by an architecture test** (a violation fails
 `dotnet test`) or **by the compiler** (`TreatWarningsAsErrors`). We add those tests and
 analyzer settings as we build; until a given check exists, treat the rule as binding anyway.
-Don't ask to relax them; match them. Deliberate departures go in
-[`../../docs/deviations-from-author.md`](../../docs/deviations-from-author.md).
+Don't ask to relax them; match them.
+
+These rules are the **contract**; the **"why"** behind them lives in
+[`../../docs/ADRs/`](../../docs/ADRs/README.md) (e.g. ADR-0004 for the Result pattern,
+ADR-0005 for layering, ADR-0006 for outbox/inbox). Deliberate course departures also go in
+[`../../docs/deviations-from-author.md`](../../docs/deviations-from-author.md), each linking
+its ADR. A new **structural** decision — a module boundary, a `Common.*` addition, a library
+swap, a cross-cutting concern — needs a **new ADR** (ask for the `architect` role) and, if it
+changes the shape of the system, an updated diagram under `docs/mermaid-diagrams/`.
 
 **Numbering convention:** ordered lists, numbered steps, phases, and identifiers start at
 **1**, never **0** — in code and in docs. (The rule series therefore runs R1–R10; the phased
@@ -200,3 +207,7 @@ prematurely enforce a Phase-2 one while we are still a monolith.
    `docs/deviations-from-author.md`.
 7. When a step depends on a still-open decision (project layout, `Evently` naming, a library
    swap — see `AGENTS.md`), ask before committing to it.
+8. A **structural** decision (module boundary, `Common.*` addition, cross-cutting concern,
+   dependency swap, course departure) lands with an **ADR** in `docs/ADRs/` (drafted by the
+   `architect` role) and, if the system's shape changed, an updated `docs/mermaid-diagrams/`
+   source + regenerated PNG (`pwsh scripts/export-mermaid.ps1`). Routine slices need neither.

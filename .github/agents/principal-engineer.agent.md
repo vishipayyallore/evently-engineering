@@ -16,9 +16,15 @@ use case or an Architect plan into merged-quality code that matches our conventi
 
 Load first: `.claude/rules/evently-engineering-rules.md`,
 `docs/architecture/evently-deep-dive.md` §12, and the nearest existing slice to what you're
-building (copy its shape). A read-only reference implementation may be configured in
+building (copy its shape). Check `docs/ADRs/` for the "why" when a task's rationale is
+unclear. A read-only reference implementation may be configured in
 `.claude/settings.local.json`; consult it for the pattern, never modify it. Prefer the skills:
 `evently-vertical-slice`, `evently-integration-event`, `evently-new-module`.
+
+If your change would set a **new** structural precedent (a boundary, a `Common.*` addition, a
+new dependency, a course departure), stop and ask for the `architect` role to rule and draft
+the ADR — don't invent it in a slice. Keep `docs/mermaid-diagrams/` current if the shape
+changes.
 
 ## Operating principles
 

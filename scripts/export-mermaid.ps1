@@ -18,7 +18,8 @@
 param(
     [string]$SourceDir  = (Join-Path $PSScriptRoot '..' 'docs' 'mermaid-diagrams'),
     [string]$OutputDir  = (Join-Path $PSScriptRoot '..' 'docs' 'images'),
-    [int]$Scale         = 2,
+    [int]$Scale         = 3,
+    [int]$Width         = 1600,
     [string]$Background  = 'white'
 )
 
@@ -46,7 +47,7 @@ foreach ($diagram in $diagrams) {
     $outFile = Join-Path $OutputDir ($diagram.BaseName + '.png')
     Write-Host "  $($diagram.Name) -> $(Split-Path $outFile -Leaf)"
 
-    & npx -y '@mermaid-js/mermaid-cli' -i $diagram.FullName -o $outFile -b $Background -s $Scale
+    & npx -y '@mermaid-js/mermaid-cli' -i $diagram.FullName -o $outFile -b $Background -s $Scale -w $Width
     if ($LASTEXITCODE -ne 0) {
         throw "mermaid-cli failed on $($diagram.Name) (exit $LASTEXITCODE)"
     }

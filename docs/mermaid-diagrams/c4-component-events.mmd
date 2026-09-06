@@ -1,0 +1,74 @@
+---
+config:
+  theme: base
+  themeVariables:
+    primaryColor: "#EDF2F9"
+    primaryBorderColor: "#CBD9EA"
+    primaryTextColor: "#3F4A58"
+    lineColor: "#BEC9D9"
+    secondaryColor: "#EEF0F4"
+    secondaryBorderColor: "#DADEE6"
+    tertiaryColor: "#ECF3ED"
+    tertiaryBorderColor: "#CDDECE"
+    clusterBkg: "#F8FAFD"
+    clusterBorder: "#E2E8F1"
+    noteBkgColor: "#FAF7EE"
+    noteBorderColor: "#E8DEC8"
+    messageTextColor: "#3F4A58"
+    compositeBackground: "#F8FAFD"
+    compositeTitleBackground: "#EDF2F9"
+    altBackground: "#F8FAFD"
+    actorTextColor: "#3F4A58"
+    signalTextColor: "#3F4A58"
+    noteTextColor: "#3F4A58"
+    labelTextColor: "#3F4A58"
+    fontFamily: "Segoe UI, Roboto, Helvetica, Arial, sans-serif"
+---
+%% C4 level 3 (Component) — the Events module. The canonical slice shape.
+%% Write: endpoint -> command handler -> aggregate -> repo + DbContext (one SaveChanges).
+%% Read: endpoint -> query handler -> Dapper. Domain event -> outbox -> integration event.
+flowchart LR
+    http(["HTTP / JWT"])
+    bus["IEventBus / MassTransit"]
+    pgW[("events schema<br/>+ outbox_messages")]
+    pgR[("events schema<br/>(Dapper reads)")]
+
+    subgraph pres["Presentation"]
+        direction TB
+        createEndpoint["CreateEvent : IEndpoint"]
+        getEndpoint["GetEvent : IEndpoint"]
+    end
+
+    subgraph app["Application"]
+        direction TB
+        createHandler["CreateEventCommandHandler"]
+        getHandler["GetEventQueryHandler"]
+        publishedHandler["EventPublishedDomainEventHandler"]
+        ifaces["IEventRepository, IUnitOfWork<br/>(interfaces declared here)"]
+    end
+
+    subgraph domain["Domain"]
+        direction TB
+        event["Event aggregate (Entity)<br/>Create / Publish / Cancel -> Result<br/>EventErrors"]
+    end
+
+    subgraph infra["Infrastructure"]
+        direction TB
+        repo["EventRepository + EventsDbContext<br/>(IUnitOfWork, outbox interceptor)"]
+        outboxJob["ProcessOutboxJob (Quartz)"]
+    end
+
+    http --> createEndpoint & getEndpoint
+    createEndpoint -->|"ISender.Send"| createHandler
+    getEndpoint -->|"ISender.Send"| getHandler
+
+    createHandler --> event
+    createHandler --> ifaces
+    getHandler -->|"IDbConnectionFactory + Dapper"| pgR
+
+    ifaces -.->|"implemented by"| repo
+    repo -->|"SaveChangesAsync (same txn)"| pgW
+
+    outboxJob -->|"poll unprocessed"| pgW
+    outboxJob --> publishedHandler
+    publishedHandler -->|"PublishAsync(EventPublishedIntegrationEvent)"| bus

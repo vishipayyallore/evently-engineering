@@ -23,3 +23,8 @@ Quick shape (see canonical file for templates and validation steps):
 5. Tests: unit for aggregate behavior, integration through `ISender`.
 6. Migration if an entity config / `DbSet` changed.
 7. `dotnet build Evently.sln` && `dotnet test Evently.sln` green.
+
+If the slice would set a **new structural precedent** (a `Common.*` interface, a new external
+dependency, a new kind of handler) → stop; that needs an `architect` ruling + an ADR in
+`docs/ADRs/`, not an ad-hoc choice here. Otherwise cite the ADR that already covers the
+pattern.

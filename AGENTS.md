@@ -46,10 +46,18 @@ events → inbox. Full design reference:
 ## Working conventions
 
 - Enforced coding rules: [`.claude/rules/evently-engineering-rules.md`](.claude/rules/evently-engineering-rules.md) (R1–R10).
+- **Decisions** — significant/structural choices are captured as ADRs in
+  [`docs/ADRs/`](docs/ADRs/README.md) (the "why"); the deep-dive is the "what";
+  [`docs/deviations-from-author.md`](docs/deviations-from-author.md) is the course-diff view
+  and links each row's ADR.
+- **Diagrams** — architecture diagrams live in `docs/mermaid-diagrams/` (rendered to
+  `docs/images/`), organised in C4 levels; see the deep-dive "Diagrams" table. Regenerate
+  with `pwsh scripts/export-mermaid.ps1`.
 - Repeatable tasks have skills: `.claude/skills/evently-vertical-slice`,
   `evently-integration-event`, `evently-new-module`.
-- Roles: `.claude/agents/architect.md` (design/boundary decisions before code),
-  `.claude/agents/principal-engineer.md` (implementation + review).
+- Roles: `.claude/agents/architect.md` (design/boundary decisions before code — **owns the
+  ADRs and the diagram set**), `.claude/agents/principal-engineer.md` (implementation +
+  review).
 - Validate from this repo's solution root: `dotnet build`, `dotnet test`. A build **warning
   is an error** once analyzers are configured — fix the cause.
 - Do not edit `bin/`, `obj/`, EF `*Designer.cs`, or `*ModelSnapshot.cs` by hand.

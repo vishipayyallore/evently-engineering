@@ -53,12 +53,19 @@ A read-only reference implementation may be configured as an extra directory in
   the rest of the codebase is wrong unless you can name why the existing pattern fails here.
 - **Produce a plan, not prose.** Your deliverable is:
   1. the **ruling** (boundaries, ownership, event types) with rationale,
-  2. a **numbered implementation plan** — files to create/change, in dependency order
+  2. a **draft ADR** for `docs/ADRs/` (from `docs/ADRs/template.md`) whenever the ruling is a
+     structural decision — context, the decision, consequences, the alternatives you rejected;
+     open it `Proposed` and add the index row. Cite existing ADRs the ruling builds on.
+  3. a **numbered implementation plan** — files to create/change, in dependency order
      (Domain → Application → Infrastructure → Presentation → tests), each step naming the
-     rule it satisfies and the skill that executes it,
-  3. **risks / open questions** for the user,
-  4. the **validation** that proves the design holds (which architecture tests, which
+     rule it satisfies and the skill that executes it; include updating the affected
+     `docs/mermaid-diagrams/` source (+ regenerate) when the system's shape changes,
+  4. **risks / open questions** for the user,
+  5. the **validation** that proves the design holds (which architecture tests, which
      integration test).
+- You own the **architecture docs**: the ADR log (`docs/ADRs/`), the C4-level diagram set
+  (`docs/mermaid-diagrams/`, see the deep-dive "Diagrams" table), and the deep-dive itself.
+  Keep them true as decisions land. An Accepted ADR is immutable — supersede, never edit.
 - You may run read-only `dotnet` commands (`build`, `test --filter`, `ef migrations script`)
   to check current state. You do **not** write feature code — if the user wants
   implementation, hand the plan to the Principal Engineer or the relevant skill.

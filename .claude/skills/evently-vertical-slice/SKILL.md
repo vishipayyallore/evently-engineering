@@ -21,6 +21,9 @@ Work in this repo. Follow [`.claude/rules/evently-engineering-rules.md`](../../r
   decision — ask for the `architect` agent.
 - **A still-open decision applies** (project layout, `Evently` naming, a library swap — see
   `AGENTS.md`) → ask before proceeding.
+- **The slice would set a new structural precedent** (a new interface in `Common.*`, a new
+  external dependency, a new kind of handler) → stop; that needs an `architect` ruling + an
+  ADR in `docs/ADRs/`, not an ad-hoc choice in a slice.
 - This skill adds exactly one use case. Multiple related use cases = run it once per slice.
 
 ## 1. Decide command vs query

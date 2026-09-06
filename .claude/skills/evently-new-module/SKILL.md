@@ -20,7 +20,8 @@ representative of a full CRUD+events module. Copy its structure, don't invent on
 
 - **Confirm the module is justified.** A new module is an architecture decision: its
   responsibility statement, its boundary, and its integration surface must be agreed with the
-  user or the `architect` agent **before** you scaffold. If that hasn't happened, stop and ask.
+  user or the `architect` agent **before** you scaffold. That decision is recorded as an
+  **ADR** in `docs/ADRs/` (the `architect` drafts it) — if there's no ADR, stop and ask.
 - **Adding a feature to an existing module** → `evently-vertical-slice`.
 - **Cross-module messaging for the new module** → scaffold here first, then `evently-integration-event`.
 - **The `Common.*` layer or solution layout doesn't exist yet** (still greenfield) → the
@@ -91,8 +92,16 @@ Copy the `Events.ArchitectureTests` `Abstractions/BaseTest.cs` + `Layers`/`Domai
 module to `test/Evently.ArchitectureTests/Layers/ModuleTests.cs` (isolation assertions both
 ways).
 
+## 6. Docs
+
+Add the module to the **system-context diagram** (`docs/mermaid-diagrams/system-context.mmd`)
+— the module box and its integration-event edges — and regenerate
+(`pwsh scripts/export-mermaid.ps1`). Confirm the `architect`'s ADR for the module is in
+`docs/ADRs/` and Accepted; if the module changes a cross-cutting pattern, that's its own ADR.
+
 ## Done when
 
+- [ ] The module's ADR exists in `docs/ADRs/` (Accepted) and is in the index.
 - [ ] All 8 projects created, added to `Evently.sln` under a `src/Modules/<NewModule>` solution
       folder, with the reference graph in §1.
 - [ ] Boilerplate copied and renamed from the template module (§2): `AssemblyReference`,
@@ -104,6 +113,7 @@ ways).
 - [ ] `Create_Database` migration generated.
 - [ ] Architecture tests copied and re-pointed; new module added to
       `test/Evently.ArchitectureTests/Layers/ModuleTests.cs` (isolation both ways).
+- [ ] `system-context` diagram updated + regenerated (§6).
 - [ ] `dotnet build Evently.sln` — 0 warnings.
 - [ ] `dotnet test Evently.sln` green, including the new module's architecture tests.
-- [ ] Report: projects added, host files changed, migration name, test output.
+- [ ] Report: projects added, host files changed, migration name, ADR, test output.

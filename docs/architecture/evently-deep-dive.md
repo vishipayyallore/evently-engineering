@@ -4,8 +4,9 @@
 > Based on the *Modular Monolith Architecture* course, adapted to **.NET 10**.
 >
 > The architecture — layering, module isolation, CQRS, outbox/inbox, the Result pattern — is
-> framework-agnostic and applies as written. Where our build deliberately departs from the
-> course, it is recorded in [`../deviations-from-author.md`](../deviations-from-author.md).
+> framework-agnostic and applies as written. This doc is the **"what"**; the **"why"** behind
+> each significant choice is an ADR in [`../ADRs/`](../ADRs/README.md), and course departures
+> are logged in [`../deviations-from-author.md`](../deviations-from-author.md).
 >
 > First drafted 2026-08-30. Update it as our implementation takes shape and as decisions land.
 
@@ -43,16 +44,25 @@ rules — R1, R7, per-schema persistence — which apply once we start modulariz
 
 Rendered PNGs live in [`../images/`](../images); the Mermaid sources are in
 [`../mermaid-diagrams/`](../mermaid-diagrams). Regenerate the PNGs after editing a source with
-`scripts/export-mermaid.ps1`. Each diagram is embedded in its most relevant section below.
+`pwsh scripts/export-mermaid.ps1` (renders every `.mmd` at scale 3 / width 1600 so text stays
+crisp on wide diagrams). Each diagram is embedded in its most relevant section below.
 
-| Diagram | Rendered | Source | Phase |
-|---|---|---|---|
-| Build roadmap (monolith → modular) | [PNG](../images/phase-roadmap.png) | [mmd](../mermaid-diagrams/phase-roadmap.mmd) | both |
-| System shape / context | [PNG](../images/system-context.png) | [mmd](../mermaid-diagrams/system-context.mmd) | 2 |
-| Per-module layering | [PNG](../images/module-layering.png) | [mmd](../mermaid-diagrams/module-layering.mmd) | 1→2 |
-| CQRS request pipeline | [PNG](../images/cqrs-pipeline.png) | [mmd](../mermaid-diagrams/cqrs-pipeline.mmd) | 1 |
-| Outbox/inbox cross-module messaging | [PNG](../images/outbox-inbox-messaging.png) | [mmd](../mermaid-diagrams/outbox-inbox-messaging.mmd) | 2 |
-| Cancel-event saga | [PNG](../images/saga.png) | [mmd](../mermaid-diagrams/saga.mmd) | 2 |
+We think about the diagrams in **[C4 model](https://c4model.com/)** levels — Context (L1),
+Container (L2), Component (L3), Code (L4) — though we draw them as styled flowcharts, not C4
+notation, to keep the set consistent.
+
+| Diagram | C4 | Rendered | Source | Phase |
+|---|---|---|---|---|
+| Build roadmap (monolith → modular) | — | [PNG](../images/phase-roadmap.png) | [mmd](../mermaid-diagrams/phase-roadmap.mmd) | both |
+| System shape / context | L1 + L2 | [PNG](../images/system-context.png) | [mmd](../mermaid-diagrams/system-context.mmd) | 2 |
+| Per-module layering | L2 (internal) | [PNG](../images/module-layering.png) | [mmd](../mermaid-diagrams/module-layering.mmd) | 1→2 |
+| Events module components | **L3** | [PNG](../images/c4-component-events.png) | [mmd](../mermaid-diagrams/c4-component-events.mmd) | 1→2 |
+| CQRS request pipeline | L4 | [PNG](../images/cqrs-pipeline.png) | [mmd](../mermaid-diagrams/cqrs-pipeline.mmd) | 1 |
+| Outbox/inbox cross-module messaging | L4 | [PNG](../images/outbox-inbox-messaging.png) | [mmd](../mermaid-diagrams/outbox-inbox-messaging.mmd) | 2 |
+| Cancel-event saga | L4 | [PNG](../images/saga.png) | [mmd](../mermaid-diagrams/saga.mmd) | 2 |
+
+A structural change (new module, new cross-cutting component, a boundary moving) must land
+with its diagram updated and, if it's a real decision, an [ADR](../ADRs/README.md).
 
 ## What this covers
 
@@ -337,6 +347,13 @@ method-prefixed — `<Method>_Should<Outcome>_When<Condition>` (e.g.
 ---
 
 ## 12. Anatomy of one vertical slice (copy this shape)
+
+![Events module — component view (C4 L3)](../images/c4-component-events.png)
+
+> Source: [`c4-component-events.mmd`](../mermaid-diagrams/c4-component-events.mmd). The write
+> path (endpoint → command handler → aggregate → repository + `DbContext`, one
+> `SaveChangesAsync`), the read path (endpoint → query handler → Dapper), and the
+> domain-event → outbox → integration-event hop, in one module.
 
 Feature: "Create Event" (a command). Files, in order of the dependency flow:
 

@@ -10,9 +10,10 @@ entry point, and test projects.
 > a **folder** in `Evently.Api`, not a project set — only run this once modularizing. Steps
 > start at 1, never 0.
 
-Architecture-level change — confirm the module's responsibility with the user / `architect`
-agent first. Copy an existing module (`Users` is smallest, `Events` most representative);
-don't invent a structure.
+Architecture-level change — the module's responsibility, boundary, and integration surface
+must be agreed with the user / `architect` agent first **and recorded as an ADR in
+`docs/ADRs/`** (the `architect` drafts it). Copy an existing module (`Users` is smallest,
+`Events` most representative); don't invent a structure.
 
 Steps: create the 8 projects under `src/Modules/<NewModule>/` (Domain, Application,
 IntegrationEvents, Infrastructure, Presentation, UnitTests, IntegrationTests,
@@ -22,5 +23,7 @@ decorators, `<NewModule>Module` DI entry point, `Permissions`, `Tags`); wire int
 `Program.cs` (application assembly, `ConfigureConsumers`, `AddModuleConfiguration`,
 `Add<NewModule>Module`) and add `modules.<newmodule>.json`; add the `Evently.Api` project
 reference; create the initial `Create_Database` migration; copy the architecture tests and
-add the module to `test/Evently.ArchitectureTests/Layers/ModuleTests.cs`. Validate with
-`dotnet build Evently.sln` && `dotnet test Evently.sln`.
+add the module to `test/Evently.ArchitectureTests/Layers/ModuleTests.cs`; add the module box
++ its integration edges to `docs/mermaid-diagrams/system-context.mmd` and regenerate
+(`pwsh scripts/export-mermaid.ps1`). Validate with `dotnet build Evently.sln` &&
+`dotnet test Evently.sln`. Report includes the ADR.

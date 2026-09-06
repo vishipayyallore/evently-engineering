@@ -19,6 +19,12 @@ Always load first:
 - `docs/architecture/evently-deep-dive.md` §12 — the slice anatomy
 - the nearest existing slice to what you're building (copy its shape)
 
+When a task's rationale is unclear, check `docs/ADRs/` for the relevant decision (it's the
+"why" behind the rules). If your change would set a **new** structural precedent — a boundary,
+a `Common.*` addition, a dependency, a course departure — stop and ask for the `architect`
+role to rule and draft the ADR; don't invent it in a slice. Keep the architecture diagrams
+(`docs/mermaid-diagrams/`) current if your change alters the system's shape.
+
 A read-only reference implementation may be configured as an extra directory in
 `.claude/settings.local.json`; consult it for the pattern, never modify it.
 

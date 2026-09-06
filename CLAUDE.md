@@ -26,9 +26,16 @@ implement our version here on .NET 10.
 
 ## Assist artifacts
 
-- `docs/architecture/evently-deep-dive.md` — the architecture reference (layering, CQRS
-  pipeline, outbox/inbox, sagas, testing, style). Read before implementing a non-trivial slice.
-- `docs/deviations-from-author.md` — running log of deliberate departures from the course.
+- `docs/architecture/evently-deep-dive.md` — the architecture reference, the **"what"**
+  (layering, CQRS pipeline, outbox/inbox, sagas, testing, style, the C4-level diagram map).
+  Read before implementing a non-trivial slice.
+- `docs/ADRs/` — Architecture Decision Records, the **"why"** (monolith-first, CQRS, Result,
+  outbox/inbox, schema-per-module, …). One immutable file per structural decision; see
+  `docs/ADRs/README.md`. A design choice should cite its ADR; a new structural decision needs
+  a new ADR (the `architect` role drafts it).
+- `docs/mermaid-diagrams/` (+ rendered `docs/images/`) — the architecture diagrams, thought of
+  in C4 levels. Regenerate with `pwsh scripts/export-mermaid.ps1` after editing a source.
+- `docs/deviations-from-author.md` — course-diff view; each row links its ADR.
 - `.claude/rules/evently-engineering-rules.md` — R1–R10, the coding contract. Each rule is
   meant to be backed by an architecture test; we add those tests as we build.
 - `.claude/skills/` — `evently-vertical-slice` (add a command/query end-to-end),

@@ -21,9 +21,12 @@ See `docs/architecture/evently-deep-dive.md` §6 for the full cross-module messa
 - **An in-module reaction** (a projection, a follow-up in the same module) → that's a plain
   domain-event handler, part of `evently-vertical-slice`, not an integration event.
 - **A workflow that must coordinate ≥2 other modules and wait for all of them** → that's a
-  saga; stop and ask for the `architect` agent.
+  saga; stop and ask for the `architect` agent (a saga is a structural decision → ADR).
 - **Changing an existing integration-event contract** (remove/retype a property) → not
   allowed (R7); ask the `architect` agent.
+- **A new cross-module dependency direction** (module A starts consuming module B for the
+  first time) → note it for the `architect`: the `system-context` diagram gains an edge and,
+  if it's a meaningful coupling, it's worth an ADR.
 
 ## Mental model
 

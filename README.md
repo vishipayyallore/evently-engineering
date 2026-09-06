@@ -19,9 +19,10 @@ implementation and the **single source of truth**. Target framework: **.NET 10**
 | Doc | What it is |
 |---|---|
 | [`AGENTS.md`](AGENTS.md) | How we work — course workflow, decisions still open |
-| [`docs/architecture/evently-deep-dive.md`](docs/architecture/evently-deep-dive.md) | Architecture reference — layering, CQRS, outbox/inbox, sagas, testing, style |
+| [`docs/architecture/evently-deep-dive.md`](docs/architecture/evently-deep-dive.md) | Architecture reference (the "what") — layering, CQRS, outbox/inbox, sagas, testing, style, C4 diagram map |
+| [`docs/ADRs/`](docs/ADRs/README.md) | Architecture Decision Records (the "why") — monolith-first, CQRS, Result, outbox/inbox, … |
 | [`.claude/rules/evently-engineering-rules.md`](.claude/rules/evently-engineering-rules.md) | R1–R10 — the coding contract |
-| [`docs/deviations-from-author.md`](docs/deviations-from-author.md) | Running log of deliberate departures from the course |
+| [`docs/deviations-from-author.md`](docs/deviations-from-author.md) | Course-diff view — where we differ from the course, and the ADR for each |
 | [`.claude/skills/`](.claude/skills) · [`.claude/agents/`](.claude/agents) | Task playbooks (vertical slice, integration event, new module) and roles (architect, principal-engineer) |
 
 ## Target architecture
